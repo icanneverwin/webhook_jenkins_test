@@ -42,6 +42,14 @@ pipeline {
           expression { BASE_BRANCH ==~ "main" }
         }
       }
+      steps {
+        echo "========================================"
+        echo "deployment to PROD is happening"
+        echo "PR_ACTION value is ${PR_ACTION}"
+        echo "BASE_BRANCH value is ${BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
+        echo "x_github_event value is ${x_github_event}"
+      }
     }
   }
 }
