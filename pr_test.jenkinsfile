@@ -4,6 +4,7 @@ pipeline {
     stage('Test Build') {
       steps {
         echo 'Hello World'
+        echo "current action is ${pr_action}"
       }
     }
   }
