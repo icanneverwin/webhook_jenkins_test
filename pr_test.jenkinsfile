@@ -38,6 +38,7 @@ pipeline {
         allOf {
           expression { PR_ACTION ==~ "submitted" }
           expression { BASE_BRANCH ==~ "main" }
+          expression { HEAD_BRANCH ==~ "develop" }
           expression { REVIEW_STATE ==~ "approved" }
         }
       }
