@@ -1,10 +1,46 @@
 pipeline {
   agent any
   stages {
-    stage('Test Build') {
+    stage('DEV Deploy') {
+      when {
+        allOf {
+          expression { PR_ACTION ==~ "opened" }
+          expression { BASE_BRANCH ==~ "develop" }
+        }
+      }
       steps {
-        echo 'Hello World'
-        echo "current action is ${pr_action}"
+        echo "========================================"
+        echo "deployment to DEV is happening"
+        echo "PR_ACTION value is ${PR_ACTION}"
+        echo "BASE_BRANCH value is ${BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
+        echo "x_github_event value is ${x_github_event}"
+      }
+    }
+    stage('TEST deploy') {
+      when {
+        allOf {
+          expression { x_github_event ==~ "pull_request_review" }
+          expression { BASE_BRANCH ==~ "develop" }
+          expression { PR_ACTION ==~ "submitted" }
+        }
+      }
+      steps {
+        echo "========================================"
+        echo "deployment to TEST is happening"
+        echo "PR_ACTION value is ${PR_ACTION}"
+        echo "BASE_BRANCH value is ${BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
+        echo "x_github_event value is ${x_github_event}"
+      }
+    }
+    stage('PROD deploy') {
+      when {
+        allOf {
+          expression { x_github_event ==~ "pull_request_review" }
+          expression { PR_ACTION ==~ "submitted" }
+          expression { BASE_BRANCH ==~ "main" }
+        }
       }
     }
   }
