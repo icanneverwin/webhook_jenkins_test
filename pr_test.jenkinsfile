@@ -14,15 +14,14 @@ pipeline {
         echo "PR_ACTION value is ${PR_ACTION}"
         echo "BASE_BRANCH value is ${BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
-        echo "X_GitHub_Event value is ${X_GitHub_Event}"
       }
     }
     stage('TEST deploy') {
       when {
         allOf {
-          expression { X_GitHub_Event ==~ "pull_request_review" }
           expression { BASE_BRANCH ==~ "develop" }
           expression { PR_ACTION ==~ "submitted" }
+          expression { REVIEW_STATE ==~ "approved" }
         }
       }
       steps {
@@ -31,15 +30,15 @@ pipeline {
         echo "PR_ACTION value is ${PR_ACTION}"
         echo "BASE_BRANCH value is ${BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
-        echo "X_GitHub_Event value is ${X_GitHub_Event}"
+        echo "REVIEW_STATE value is ${REVIEW_STATE}"
       }
     }
     stage('PROD deploy') {
       when {
         allOf {
-          expression { X_GitHub_Event ==~ "pull_request_review" }
           expression { PR_ACTION ==~ "submitted" }
           expression { BASE_BRANCH ==~ "main" }
+          expression { REVIEW_STATE ==~ "approved" }
         }
       }
       steps {
@@ -48,7 +47,7 @@ pipeline {
         echo "PR_ACTION value is ${PR_ACTION}"
         echo "BASE_BRANCH value is ${BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
-        echo "X_GitHub_Event value is ${X_GitHub_Event}"
+        echo "REVIEW_STATE value is ${REVIEW_STATE}"
       }
     }
   }
