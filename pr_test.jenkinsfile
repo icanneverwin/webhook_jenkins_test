@@ -1,6 +1,18 @@
 pipeline {
   agent any
   stages {
+    stage('Check Var') {
+      steps {
+        echo "========================================"
+        echo "variables are as folows:"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        echo "BASE_SHA value is ${params.BASE_SHA}"
+        echo "HEAD_SHA value is ${params.HEAD_SHA}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+      }
+    }
     stage('DEV Deploy') {
       when {
         allOf {
