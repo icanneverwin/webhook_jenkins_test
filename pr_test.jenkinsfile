@@ -4,8 +4,8 @@ pipeline {
     stage('DEV Deploy') {
       when {
         allOf {
-          expression { "${params.PR_ACTION}" ==~ "opened" }
-          expression { "${params.BASE_BRANCH}" ==~ "develop" }
+          expression { params.PR_ACTION ==~ "opened" }
+          expression { params.BASE_BRANCH ==~ "develop" }
         }
       }
       steps {
@@ -19,9 +19,9 @@ pipeline {
     stage('TEST deploy') {
       when {
         allOf {
-          expression { "${params.BASE_BRANCH}" ==~ "develop" }
-          expression { "${params.PR_ACTION}" ==~ "submitted" }
-          expression { "${params.REVIEW_STATE}" ==~ "approved" }
+          expression { params.BASE_BRANCH ==~ "develop" }
+          expression { params.PR_ACTION ==~ "submitted" }
+          expression { params.REVIEW_STATE ==~ "approved" }
         }
       }
       steps {
@@ -36,10 +36,10 @@ pipeline {
     stage('PROD deploy') {
       when {
         allOf {
-          expression { "${params.PR_ACTION}" ==~ "submitted" }
-          expression { "${params.BASE_BRANCH}" ==~ "main" }
-          expression { "${params.HEAD_BRANCH}" ==~ "develop" }
-          expression { "${params.REVIEW_STATE}" ==~ "approved" }
+          expression { params.PR_ACTION ==~ "submitted" }
+          expression { params.BASE_BRANCH ==~ "main" }
+          expression { params.HEAD_BRANCH ==~ "develop" }
+          expression { params.REVIEW_STATE ==~ "approved" }
         }
       }
       steps {
