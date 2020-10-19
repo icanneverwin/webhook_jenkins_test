@@ -4,51 +4,51 @@ pipeline {
     stage('DEV Deploy') {
       when {
         allOf {
-          expression { PR_ACTION ==~ "opened" }
-          expression { BASE_BRANCH ==~ "develop" }
+          expression { ${params.PR_ACTION} ==~ "opened" }
+          expression { ${params.BASE_BRANCH} ==~ "develop" }
         }
       }
       steps {
         echo "========================================"
         echo "deployment to DEV is happening"
-        echo "PR_ACTION value is ${PR_ACTION}"
-        echo "BASE_BRANCH value is ${BASE_BRANCH}"
-        echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
       }
     }
     stage('TEST deploy') {
       when {
         allOf {
-          expression { BASE_BRANCH ==~ "develop" }
-          expression { PR_ACTION ==~ "submitted" }
-          expression { REVIEW_STATE ==~ "approved" }
+          expression { ${params.BASE_BRANCH} ==~ "develop" }
+          expression { ${params.PR_ACTION} ==~ "submitted" }
+          expression { ${params.REVIEW_STATE} ==~ "approved" }
         }
       }
       steps {
         echo "========================================"
         echo "deployment to TEST is happening"
-        echo "PR_ACTION value is ${PR_ACTION}"
-        echo "BASE_BRANCH value is ${BASE_BRANCH}"
-        echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
-        echo "REVIEW_STATE value is ${REVIEW_STATE}"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.EAD_BRANCH}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
       }
     }
     stage('PROD deploy') {
       when {
         allOf {
-          expression { PR_ACTION ==~ "submitted" }
-          expression { BASE_BRANCH ==~ "main" }
-          expression { HEAD_BRANCH ==~ "develop" }
-          expression { REVIEW_STATE ==~ "approved" }
+          expression { ${params.PR_ACTION} ==~ "submitted" }
+          expression { ${params.BASE_BRANCH} ==~ "main" }
+          expression { ${params.HEAD_BRANCH} ==~ "develop" }
+          expression { ${params.REVIEW_STATE} ==~ "approved" }
         }
       }
       steps {
         echo "========================================"
         echo "deployment to PROD is happening"
-        echo "PR_ACTION value is ${PR_ACTION}"
-        echo "BASE_BRANCH value is ${BASE_BRANCH}"
-        echo "HEAD_BRANCH value is ${HEAD_BRANCH}"
-        echo "REVIEW_STATE value is ${REVIEW_STATE}"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
       }
     }
   }
