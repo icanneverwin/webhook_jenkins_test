@@ -73,7 +73,7 @@ pipeline {
           emailext (
               subject: "Job '${env.JOB_NAME}' build number ['${env.BUILD_NUMBER}'] executed",
               mimeType: 'text/html',
-              from: "Your friendly neighborhood Jenkins",
+              from: "zabbix@weigandt-consulting.com",
               body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
               <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
