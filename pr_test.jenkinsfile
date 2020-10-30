@@ -1,6 +1,6 @@
 pipeline {
   agent any
-  enrivonment {
+  environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
   }
@@ -74,7 +74,7 @@ pipeline {
               subject: "Job '${env.JOB_NAME}' build number ['${env.BUILD_NUMBER}'] executed",
               body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
               <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-              recepientProviders: ${env.email_add1}, ${env.email_add2}
+              recepientProviders: "${env.email_add1}", "${env.email_add2}"
           )
       }
   }
