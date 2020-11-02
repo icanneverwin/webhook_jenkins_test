@@ -3,6 +3,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
+    DIFF_OBJ_LIST = sh(script: 'git diff --name-only --diff-filters=ACMR ${params.BASE_BRANCH} ${params.HEAD_BRANCH}', returnStdout: true).trim()
   }
   stages {
     stage('Check Var') {
@@ -33,8 +34,7 @@ pipeline {
         echo "PR_ACTION value is ${params.PR_ACTION}"
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
-
-        sh 'git diff --name-only --diff-filters=ACMR ${params.BASE_BRANCH} ${params.HEAD_BRANCH} > difflog.txt'
+        echo "${env.DIFF_OBJ_LIST}"
       }
     }
     stage('TEST deploy') {
