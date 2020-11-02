@@ -76,15 +76,15 @@ pipeline {
   post {
       always {
           emailext (
-              subject: "SUCCESS: '${PR_TITLE}' deployment to '${ENV}'",
+              subject: "SUCCESS: '${params.PR_TITLE}' deployment to '${ENV}'",
               mimeType: 'text/html',
               from: "zabbix@weigandt-consulting.com",
-              body: """GitHub Pull Request '${PR_TITLE}' from branch '${HEAD_BRANCH}' to branch '${BASE_BRANCH}' from user '${PR_USER}' has initiated the following deployment:
+              body: """GitHub Pull Request '${params.PR_TITLE}' from branch '${params.HEAD_BRANCH}' to branch '${params.BASE_BRANCH}' from user '${params.PR_USER}' has initiated the following deployment:
               <p>Jenkins build: '${env.BUILD_NUMBER}'</p>
               <p>Environment: '${ENV}</p>
               <p>Hostname: N/A</p>
               <p>Deployed objects: </p>
-                <p>'${DIFF_OBJ_LIST}'</p>""",
+                <p>'${env.DIFF_OBJ_LIST}'</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
           )
       }
