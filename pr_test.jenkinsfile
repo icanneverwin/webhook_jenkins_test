@@ -3,7 +3,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
-    DIFF_OBJ_LIST = sh(script: 'git diff --name-only --diff-filters=ACMR ${params.BASE_BRANCH} ${params.HEAD_BRANCH}', returnStdout: true).trim()
+    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filters=ACMR ${params.BASE_BRANCH} ${params.HEAD_BRANCH}", returnStdout: true).trim()
   }
   stages {
     stage('Check Var') {
@@ -28,6 +28,9 @@ pipeline {
           expression { params.BASE_BRANCH ==~ "develop" }
         }
       }
+      environment {
+          ENV = 'DEV'
+      }
       steps {
         echo "========================================"
         echo "deployment to DEV is happening"
@@ -44,6 +47,9 @@ pipeline {
           expression { params.PR_ACTION ==~ "submitted" }
           expression { params.REVIEW_STATE ==~ "approved" }
         }
+      }
+      environment {
+          ENV = 'TEST'
       }
       steps {
         echo "========================================"
@@ -62,6 +68,9 @@ pipeline {
           expression { params.HEAD_BRANCH ==~ "develop" }
           expression { params.REVIEW_STATE ==~ "approved" }
         }
+      }
+      environment {
+          ENV = 'PROD'
       }
       steps {
         echo "========================================"
