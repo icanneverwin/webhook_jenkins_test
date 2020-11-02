@@ -20,7 +20,10 @@ pipeline {
     stage('DEV Deploy') {
       when {
         allOf {
-          expression { params.PR_ACTION ==~ "opened" }
+          anyOf{
+            expression { params.PR_ACTION ==~ "opened" }
+            expression { params.PR_ACTION ==~ "synchronize" }
+          }         
           expression { params.BASE_BRANCH ==~ "develop" }
         }
       }
@@ -30,6 +33,8 @@ pipeline {
         echo "PR_ACTION value is ${params.PR_ACTION}"
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+
+        sh 'git diff --name-only --diff-filters=ACMR ${params.BASE_BRANCH} ${params.HEAD_BRANCH} > difflog.txt'
       }
     }
     stage('TEST deploy') {
@@ -71,11 +76,15 @@ pipeline {
   post {
       always {
           emailext (
-              subject: "Job '${env.JOB_NAME}' build number ['${env.BUILD_NUMBER}'] executed",
+              subject: "SUCCESS: '${PR_TITLE}' deployment to '${ENV}'",
               mimeType: 'text/html',
-              from: "Jenkins",
-              body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-              <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+              from: "zabbix@weigandt-consulting.com",
+              body: """GitHub Pull Request '${PR_TITLE}' from branch '${HEAD_BRANCH}' to branch '${BASE_BRANCH}' from user '${PR_USER}' has initiated the following deployment:
+              <p>Jenkins build: '${env.BUILD_NUMBER}'</p>
+              <p>Environment: '${ENV}</p>
+              <p>Hostname: N/A</p>
+              <p>Deployed objects: </p>
+                <p>'${DIFF_OBJ_LIST}'</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
           )
       }
