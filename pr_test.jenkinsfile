@@ -3,7 +3,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
-    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filters=ACMR ${params.BASE_BRANCH} ${params.HEAD_BRANCH}", returnStdout: true).trim()
+    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filters=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true).trim()
   }
   stages {
     stage('Check Var') {
@@ -90,7 +90,7 @@ pipeline {
               from: "zabbix@weigandt-consulting.com",
               body: """GitHub Pull Request '${params.PR_TITLE}' from branch '${params.HEAD_BRANCH}' to branch '${params.BASE_BRANCH}' from user '${params.PR_USER}' has initiated the following deployment:
               <p>Jenkins build: '${env.BUILD_NUMBER}'</p>
-              <p>Environment: '${ENV}</p>
+              <p>Environment: '${params.ENV}</p>
               <p>Hostname: N/A</p>
               <p>Deployed objects: </p>
                 <p>'${env.DIFF_OBJ_LIST}'</p>""",
