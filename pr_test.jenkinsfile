@@ -1,14 +1,10 @@
-def deploy_env = ''
-
 pipeline {
   agent any
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
     DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
-  }
-  parameters {
-    string(name: 'DEPLOY_ENV', defaultValue: '')
+    DEPLOY_ENV = ''
   }
   stages {
     stage('Check Var') {
@@ -40,7 +36,9 @@ pipeline {
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
         echo "${env.DIFF_OBJ_LIST}"
-        params.DEPLOY_ENV = 'DEV'
+        withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }
       }
     }
     stage('TEST deploy') {
@@ -58,7 +56,9 @@ pipeline {
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.EAD_BRANCH}"
         echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
-        params.DEPLOY_ENV = 'TEST'
+        withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }
       }
     }
     stage('PROD deploy') {
@@ -77,19 +77,21 @@ pipeline {
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
         echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
-        params.DEPLOY_ENV = 'PROD'
+        withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }
       }
     }
   }
   post {
       always {
           emailext (
-              subject: "SUCCESS: '${params.PR_TITLE}' deployment to ${params.DEPLOY_ENV}",
+              subject: "SUCCESS: '${params.PR_TITLE}' deployment to ${env.DEPLOY_ENV}",
               mimeType: 'text/html',
               from: "zabbix@weigandt-consulting.com",
               body: """GitHub Pull Request <${params.PR_TITLE}> from branch <b>${params.HEAD_BRANCH}</b> to branch <b>${params.BASE_BRANCH}</b> from user '${params.PR_USER}' has initiated the following deployment:
               <p>Jenkins build: <b>${env.BUILD_NUMBER}</b></p>
-              <p>Environment: <b>${params.DEPLOY_ENV}</b></p>
+              <p>Environment: <b>${env.DEPLOY_ENV}</b></p>
               <p>Hostname: N/A</p>
               <p>Deployed objects: </p>
                 <p>${env.DIFF_OBJ_LIST}</p>""",
