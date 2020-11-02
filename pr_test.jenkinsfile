@@ -3,7 +3,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
-    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filters=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true).trim()
+    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true).trim()
   }
   stages {
     stage('Check Var') {
