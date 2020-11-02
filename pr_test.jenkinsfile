@@ -3,7 +3,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
-    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true).trim()
+    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filters=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
   }
   stages {
     stage('Check Var') {
@@ -29,11 +29,11 @@ pipeline {
         }
       }
       environment {
-          ENV = 'DEV'
+          DEPLOY_ENV = 'DEV'
       }
       steps {
         echo "========================================"
-        echo "deployment to DEV is happening"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
@@ -49,11 +49,11 @@ pipeline {
         }
       }
       environment {
-          ENV = 'TEST'
+          DEPLOY_ENV = 'TEST'
       }
       steps {
         echo "========================================"
-        echo "deployment to TEST is happening"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.EAD_BRANCH}"
@@ -70,11 +70,11 @@ pipeline {
         }
       }
       environment {
-          ENV = 'PROD'
+          DEPLOY_ENV = 'PROD'
       }
       steps {
         echo "========================================"
-        echo "deployment to PROD is happening"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
@@ -85,15 +85,15 @@ pipeline {
   post {
       always {
           emailext (
-              subject: "SUCCESS: '${params.PR_TITLE}' deployment to '${params.ENV}'",
+              subject: "SUCCESS: '${params.PR_TITLE}' deployment to ${env.DEPLOY_ENV}",
               mimeType: 'text/html',
               from: "zabbix@weigandt-consulting.com",
-              body: """GitHub Pull Request '${params.PR_TITLE}' from branch '${params.HEAD_BRANCH}' to branch '${params.BASE_BRANCH}' from user '${params.PR_USER}' has initiated the following deployment:
-              <p>Jenkins build: '${env.BUILD_NUMBER}'</p>
-              <p>Environment: '${params.ENV}</p>
+              body: """GitHub Pull Request <${params.PR_TITLE}> from branch <b>${params.HEAD_BRANCH}</b> to branch <b>${params.BASE_BRANCH}</b> from user '${params.PR_USER}' has initiated the following deployment:
+              <p>Jenkins build: <b>${env.BUILD_NUMBER}</b></p>
+              <p>Environment: <b>${env.DEPLOY_ENV}</b<</p>
               <p>Hostname: N/A</p>
               <p>Deployed objects: </p>
-                <p>'${env.DIFF_OBJ_LIST}'</p>""",
+                <p>${env.DIFF_OBJ_LIST}</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
           )
       }
