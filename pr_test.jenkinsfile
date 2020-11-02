@@ -85,7 +85,7 @@ pipeline {
   post {
       always {
           emailext (
-              subject: "SUCCESS: '${params.PR_TITLE}' deployment to '${ENV}'",
+              subject: "SUCCESS: '${params.PR_TITLE}' deployment to '${params.ENV}'",
               mimeType: 'text/html',
               from: "zabbix@weigandt-consulting.com",
               body: """GitHub Pull Request '${params.PR_TITLE}' from branch '${params.HEAD_BRANCH}' to branch '${params.BASE_BRANCH}' from user '${params.PR_USER}' has initiated the following deployment:
