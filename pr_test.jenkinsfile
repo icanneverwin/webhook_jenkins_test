@@ -43,7 +43,7 @@ pipeline {
               <p>Environment: <b>${env.DEPLOY_ENV}</b></p>
               <p>Hostname: N/A</p>
               <p>Deployed objects: </p>
-                <p>${env.DIFF_OBJ_LIST}</p>""",
+                <p>"${env.DIFF_OBJ_LIST}"</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
         echo "========================================"
@@ -57,7 +57,6 @@ pipeline {
         }*/
         echo "Executing move_rpd.sh script"
         sh 'chmod +x ./move_rpd.sh'
-        sh 'set +x'
         sh './move_rpd.sh'
       }
     }
