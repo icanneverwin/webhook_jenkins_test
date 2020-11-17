@@ -57,6 +57,7 @@ pipeline {
         }*/
         echo "Executing move_rpd.sh script"
         sh 'chmod +x ./move_rpd.sh'
+        sh 'set +x'
         sh './move_rpd.sh'
       }
     }
