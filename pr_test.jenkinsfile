@@ -16,6 +16,8 @@ pipeline {
         echo "BASE_SHA value is ${params.BASE_SHA}"
         echo "HEAD_SHA value is ${params.HEAD_SHA}"
         echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+        echo "WORKSPACE value is ${env.WORKSPACE}"
+        echo "NODE_NAME value is ${env.NODE_NAME}"
       }
     }
     stage('DEV Deploy') {
@@ -53,6 +55,7 @@ pipeline {
         /*withEnv(["DEPLOY_ENV=DEV"]) {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
+
       }
     }
     stage('TEST deploy') {
