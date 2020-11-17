@@ -20,6 +20,7 @@ else
   else
     echo "Oops, something bad happened! Cannot move the file ${RPD}"
 	exit 1
+  fi
 fi
 
 echo "all checks are done, exiting..."
