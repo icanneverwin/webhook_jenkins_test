@@ -55,7 +55,8 @@ pipeline {
         /*withEnv(["DEPLOY_ENV=DEV"]) {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
-
+        echo "Executing move_rpd.sh script"
+        sh './move_rpd.sh'
       }
     }
     stage('TEST deploy') {
