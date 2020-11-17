@@ -8,7 +8,7 @@ RPD=/var/lib/jenkins/workspace/test_jenkins_pipeline/liverpd.rpd
 TEMP_DIR=/tmp/jenkins_tmp_data
 
 # check if RPD exists
-if [[ -e $RPD ]] ; then
+if [[ ! -e $RPD ]] ; then
   echo "File does not exist, job failed..."
   exit 1
 else 
