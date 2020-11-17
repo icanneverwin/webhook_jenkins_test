@@ -2,6 +2,7 @@
 
 ###
 echo "Preparing for RPD file movement"
+echo "Jenkins Workspace is ${WORKSPACE}"
 
 RPD=/var/lib/jenkins/workspace/test_jenkins_pipeline/liverpd.rpd
 TEMP_DIR=/tmp/jenkins_tmp_data
