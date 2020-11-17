@@ -18,6 +18,7 @@ pipeline {
         echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
         echo "WORKSPACE value is ${env.WORKSPACE}"
         echo "NODE_NAME value is ${env.NODE_NAME}"
+        echo "PR_NUM value is ${params.PR_NUM}"
       }
     }
     stage('DEV Deploy') {
@@ -38,12 +39,16 @@ pipeline {
               subject: "Starting deployment of '${params.PR_TITLE}' to ${env.DEPLOY_ENV}",
               mimeType: 'text/html',
               from: "zabbix@weigandt-consulting.com",
-              body: """GitHub Pull Request <${params.PR_TITLE}> from branch <b>${params.HEAD_BRANCH}</b> to branch <b>${params.BASE_BRANCH}</b> from user '${params.PR_USER}' has initiated the following deployment:
-              <p>Jenkins build: <b>${env.BUILD_NUMBER}</b></p>
-              <p>Environment: <b>${env.DEPLOY_ENV}</b></p>
-              <p>Hostname: N/A</p>
-              <p>Deployed objects: </p>
-                <p>"${env.DIFF_OBJ_LIST}"</p>""",
+              body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
+              <ul style="font-family:tahoma;">
+                <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
+                <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
+                <li>By user:        <b>${params.PR_USER}</b>;</li>
+                <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
+                <li>Hostname:       <b>N/A</b>.</li>
+              </ul>
+              
+              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
         echo "========================================"
