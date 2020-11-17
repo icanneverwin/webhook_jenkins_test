@@ -1,10 +1,136 @@
 pipeline {
   agent any
+  environment {
+    email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
+    email_add2 = 'konstantin.orlov@weigandt-consulting.com'
+    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
+  }
   stages {
-    stage('Test Build') {
+    stage('Check Var') {
       steps {
-        echo 'Hello World'
+        echo "========================================"
+        echo "variables are as folows:"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        echo "BASE_SHA value is ${params.BASE_SHA}"
+        echo "HEAD_SHA value is ${params.HEAD_SHA}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+        echo "WORKSPACE value is ${env.WORKSPACE}"
+        echo "NODE_NAME value is ${env.NODE_NAME}"
       }
     }
+    stage('DEV Deploy') {
+      when {
+        allOf {
+          anyOf{
+            expression { params.PR_ACTION ==~ "opened" }
+            expression { params.PR_ACTION ==~ "synchronize" }
+          }         
+          expression { params.BASE_BRANCH ==~ "develop" }
+        }
+      }
+      environment {
+        DEPLOY_ENV = 'DEV'
+      }
+      steps {
+        emailext (
+              subject: "Starting deployment of '${params.PR_TITLE}' to ${env.DEPLOY_ENV}",
+              mimeType: 'text/html',
+              from: "zabbix@weigandt-consulting.com",
+              body: """GitHub Pull Request <${params.PR_TITLE}> from branch <b>${params.HEAD_BRANCH}</b> to branch <b>${params.BASE_BRANCH}</b> from user '${params.PR_USER}' has initiated the following deployment:
+              <p>Jenkins build: <b>${env.BUILD_NUMBER}</b></p>
+              <p>Environment: <b>${env.DEPLOY_ENV}</b></p>
+              <p>Hostname: N/A</p>
+              <p>Deployed objects: </p>
+                <p>${env.DIFF_OBJ_LIST}</p>""",
+              to: "${env.email_add1}, ${env.email_add2}"
+        )
+        echo "========================================"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        echo "${env.DIFF_OBJ_LIST}"
+        /*withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }*/
+        echo "Executing move_rpd.sh script"
+        sh './move_rpd.sh'
+      }
+    }
+    stage('TEST deploy') {
+      when {
+        allOf {
+          expression { params.BASE_BRANCH ==~ "develop" }
+          expression { params.PR_ACTION ==~ "submitted" }
+          expression { params.REVIEW_STATE ==~ "approved" }
+        }
+      }
+      steps {
+        echo "========================================"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.EAD_BRANCH}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+        /*withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }*/
+      }
+    }
+    stage('PROD deploy') {
+      when {
+        allOf {
+          expression { params.PR_ACTION ==~ "submitted" }
+          expression { params.BASE_BRANCH ==~ "main" }
+          expression { params.HEAD_BRANCH ==~ "develop" }
+          expression { params.REVIEW_STATE ==~ "approved" }
+        }
+      }
+      steps {
+        echo "========================================"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+        /*withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }*/
+      }
+    }
+  }
+  post {
+      success {
+        emailext (
+              subject: "SUCCESS: '${params.PR_TITLE}'",
+              mimeType: 'text/html',
+              from: "zabbix@weigandt-consulting.com",
+              body: """<p style="color:green"><b>SUCCESSFUL</b> deployment:</p>
+
+                        <p>GitHub Pull Request:  <b>${params.PR_TITLE}</b></p>
+                                <p>from branch:  <b>${params.HEAD_BRANCH}</b></p>
+                                  <p>to branch:  <b>${params.BASE_BRANCH}</b></p>
+                                    <p>by user:  <b>${params.PR_USER}</b></p>
+                              <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
+              to: "${env.email_add1}, ${env.email_add2}"
+          )
+      }
+      failure {
+        emailext (
+              subject: "FAILED: '${params.PR_TITLE}'",
+              mimeType: 'text/html',
+              from: "zabbix@weigandt-consulting.com",
+              body: """<p style="color:red"><b>FAILED</b> deployment:</p>
+
+                        <p>GitHub Pull Request:  <b>${params.PR_TITLE}</b></p>
+                                <p>from branch:  <b>${params.HEAD_BRANCH}</b></p>
+                                  <p>to branch:  <b>${params.BASE_BRANCH}</b></p>
+                                    <p>by user:  <b>${params.PR_USER}</b></p>
+                              <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
+              to: "${env.email_add1}, ${env.email_add2}"
+          )
+      }
   }
 }
