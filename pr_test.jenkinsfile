@@ -36,11 +36,12 @@ pipeline {
       }
       steps {
         emailext (
-              subject: "Starting deployment of '${params.PR_TITLE}' to ${env.DEPLOY_ENV}",
+              subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
               mimeType: 'text/html',
               from: "zabbix@weigandt-consulting.com",
               body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
               <ul style="font-family:tahoma;">
+                <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
                 <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
                 <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
                 <li>By user:        <b>${params.PR_USER}</b>;</li>
