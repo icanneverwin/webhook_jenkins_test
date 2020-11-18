@@ -24,7 +24,7 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'DEV'
-        DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
+        /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
@@ -122,6 +122,9 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'TEST'
+        /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
+        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
       steps {
         /* Sending deployment initialization email */
@@ -214,6 +217,9 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'PROD'
+        /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
+        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
       steps {
         emailext (
