@@ -22,6 +22,9 @@ pipeline {
       }
     } */
     stage('DEV Deploy') {
+      agent {          
+        label 'jenkins01'
+      }
       when {
         allOf {
           anyOf{
@@ -29,11 +32,6 @@ pipeline {
             expression { params.PR_ACTION ==~ "synchronize" }
           }         
           expression { params.BASE_BRANCH ==~ "develop" }
-        }
-      }
-      agent {
-        node {
-          label 'jenkins01'
         }
       }
       environment {
@@ -72,16 +70,14 @@ pipeline {
       }
     }
     stage('TEST deploy') {
+      agent {
+        label 'spbdocker'
+      }
       when {
         allOf {
           expression { params.BASE_BRANCH ==~ "develop" }
           expression { params.PR_ACTION ==~ "submitted" }
           expression { params.REVIEW_STATE ==~ "approved" }
-        }
-      }
-      agent {
-        node {
-          label 'spbdocker'
         }
       }
       environment {
@@ -117,17 +113,15 @@ pipeline {
       }
     }
     stage('PROD deploy') {
+      agent {
+        label 'spbdocker'
+      }
       when {
         allOf {
           expression { params.PR_ACTION ==~ "submitted" }
           expression { params.BASE_BRANCH ==~ "main" }
           expression { params.HEAD_BRANCH ==~ "develop" }
           expression { params.REVIEW_STATE ==~ "approved" }
-        }
-      }
-      agent {
-        node {
-          label 'spbdocker'
         }
       }
       environment {
