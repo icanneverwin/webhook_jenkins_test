@@ -205,7 +205,7 @@ pipeline {
         echo "JOB_NAME value is ${env.JOB_NAME}"
         echo "BUILD_NUMBER value is ${env.BUILD_NUMBER}"
         echo "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"
-        /*sh "cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"*/
+        sh(script: "cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log", returnStdout: true)
       }
     }
   }
