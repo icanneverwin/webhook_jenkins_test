@@ -197,4 +197,12 @@ pipeline {
       }
     }
   }
+
+  post {
+    failure {
+      node('master') {
+        sh 'cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log'
+      }
+    }
+  }
 }
