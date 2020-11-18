@@ -202,9 +202,10 @@ pipeline {
       node('master') {
         echo 'running post failure action'
         echo "JENKINS_HOME value is ${env.JENKINS_HOME}"
-        echo "JOB_NAME value is ${params.JOB_NAME}"
-        echo "BASE_BRABUILD_NUMBERNCH value is ${params.BUILD_NUMBER}"
-        sh "cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"
+        echo "JOB_NAME value is ${env.JOB_NAME}"
+        echo "BUILD_NUMBER value is ${env.BUILD_NUMBER}"
+        echo "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"
+        /*sh "cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"*/
       }
     }
   }
