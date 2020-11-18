@@ -77,10 +77,10 @@ pipeline {
       post {
         success {
           emailext (
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment succeeded",
+            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment SUCCEEDED",
             mimeType: 'text/html',
             from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(40,224,31)">SUCCESS.</h4/
+            body: """<h4 style="font-family:tahoma;color:rgb(40,224,31)">SUCCESS</h4/
             <ul style="font-family:tahoma;">
               <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
               <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
@@ -91,17 +91,17 @@ pipeline {
               <li>Hostname:       <b>${env.HOSTNAME}</li>
               <li>IP:       <b>${env.IP_ADDR}</li>
             </ul>
-            <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
+            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
             to: "${env.email_add1}, ${env.email_add2}"
           )
         }
       failure {
           emailext (
             attachLog: true, 
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment failed",
+            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment FAILED",
             mimeType: 'text/html',
             from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(247,32,9)">FAILURE.</h4/
+            body: """<h4 style="font-family:tahoma;color:rgb(247,32,9)">FAILURE</h4/
             <ul style="font-family:tahoma;">
               <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
               <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
@@ -112,7 +112,7 @@ pipeline {
               <li>Hostname:       <b>${env.HOSTNAME}</li>
               <li>IP:       <b>${env.IP_ADDR}</li>
             </ul>
-            <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
+            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
             to: "${env.email_add1}, ${env.email_add2}"
           )
         }
