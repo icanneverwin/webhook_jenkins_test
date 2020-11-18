@@ -206,6 +206,19 @@ pipeline {
         echo "BUILD_NUMBER value is ${env.BUILD_NUMBER}"
         echo "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"
         sh(script: "cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log", returnStdout: true)
+        emailext (
+          attachLog: true,
+          subject: "FAILED: '${params.PR_TITLE}'",
+          mimeType: 'text/html',
+          from: "zabbix@weigandt-consulting.com",
+          body: """<p style="color:red"><b>FAILED</b> deployment:</p>
+                  <p>GitHub Pull Request:  <b>${params.PR_TITLE}</b></p>
+                  <p>from branch:  <b>${params.HEAD_BRANCH}</b></p>
+                  <p>to branch:  <b>${params.BASE_BRANCH}</b></p>
+                  <p>by user:  <b>${params.PR_USER}</b></p>
+                  <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
+          to: "${env.email_add1}, ${env.email_add2}"
+          )
       }
     }
   }
