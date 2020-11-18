@@ -38,6 +38,9 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'DEV'
+        DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
+        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+        IP_ADDR = sh(script: "hostname -I | awk '{print $1}'", returnStdout: true)
       }
       steps {
         emailext (
@@ -51,9 +54,9 @@ pipeline {
                 <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
                 <li>By user:        <b>${params.PR_USER}</b>;</li>
                 <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-                <li>Hostname:       <b>N/A</b>.</li>
+                <li>Hostname:       <b>${env.HOSTNAME}</li>
+                <li>IP:       <b>${env.IP_ADDR}</li>
               </ul>
-              
               <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
