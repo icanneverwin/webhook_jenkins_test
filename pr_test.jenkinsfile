@@ -159,6 +159,9 @@ pipeline {
   }
   post {
       success {
+        agent {
+          label 'jenkins01'
+        }
         emailext (
               subject: "SUCCESS: '${params.PR_TITLE}'",
               mimeType: 'text/html',
@@ -174,6 +177,9 @@ pipeline {
           )
       }
       failure {
+        agent {
+          label 'jenkins01'
+        }
         emailext (
               subject: "FAILED: '${params.PR_TITLE}'",
               mimeType: 'text/html',
