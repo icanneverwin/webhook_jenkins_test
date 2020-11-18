@@ -43,6 +43,7 @@ pipeline {
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
       steps {
+        /* Sending deployment initialization email */
         emailext (
               subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
               mimeType: "text/html",
@@ -58,9 +59,10 @@ pipeline {
                 <li>IP:       <b>${env.IP_ADDR}</li>
               </ul>
               <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>
-              <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
+              <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
+        /* main steps */
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
