@@ -54,7 +54,6 @@ pipeline {
         echo "PR_ACTION value is ${params.PR_ACTION}"
         echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
         echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
-        echo "${env.DIFF_OBJ_LIST}"
         /*withEnv(["DEPLOY_ENV=DEV"]) {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
@@ -155,6 +154,9 @@ pipeline {
         /*withEnv(["DEPLOY_ENV=DEV"]) {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
+        echo "Executing move_rpd.sh script"
+        sh 'chmod +x ./move_rpd.sh'
+        sh './move_rpd.sh'
       }
       post {
         success {
@@ -249,6 +251,9 @@ pipeline {
         /*withEnv(["DEPLOY_ENV=DEV"]) {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
+        echo "Executing move_rpd.sh script"
+        sh 'chmod +x ./move_rpd.sh'
+        sh './move_rpd.sh'
       }
       post {
         success {
