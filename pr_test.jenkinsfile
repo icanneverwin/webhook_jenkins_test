@@ -102,8 +102,8 @@ pipeline {
                                 <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
                 to: "${env.email_add1}, ${env.email_add2}"
           )
-        }
-      }*/
+        }*/
+      }
     }
     stage('TEST deploy') {
       agent {
