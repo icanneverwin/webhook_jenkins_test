@@ -22,8 +22,10 @@ pipeline {
       }
     } */
     stage('DEV Deploy') {
-      agent {          
-        label 'jenkins01'
+      agent {
+        node {
+          label 'jenkins01'
+        }
       }
       when {
         allOf {
@@ -102,7 +104,9 @@ pipeline {
     }
     stage('TEST deploy') {
       agent {
-        label 'spbdocker'
+        node {
+          label 'spbdocker'
+        }
       }
       when {
         allOf {
@@ -145,7 +149,9 @@ pipeline {
     }
     stage('PROD deploy') {
       agent {
-        label 'spbdocker'
+        node {
+          label 'spbdocker'
+        }
       }
       when {
         allOf {
