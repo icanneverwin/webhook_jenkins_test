@@ -88,7 +88,7 @@ pipeline {
                 to: "${env.email_add1}, ${env.email_add2}"
           )
         }
-        failure {
+        /*failure {
           emailext (
                 subject: "FAILED: '${params.PR_TITLE}'",
                 mimeType: 'text/html',
@@ -103,7 +103,7 @@ pipeline {
                 to: "${env.email_add1}, ${env.email_add2}"
           )
         }
-      }
+      }*/
     }
     stage('TEST deploy') {
       agent {
@@ -197,11 +197,14 @@ pipeline {
       }
     }
   }
-
   post {
     failure {
       node('master') {
-        sh 'cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log'
+        echo 'running post failure action'
+        echo "JENKINS_HOME value is ${env.JENKINS_HOME}"
+        echo "JOB_NAME value is ${params.JOB_NAME}"
+        echo "BASE_BRABUILD_NUMBERNCH value is ${params.BUILD_NUMBER}"
+        sh "cat ${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_NUMBER}/log"
       }
     }
   }
