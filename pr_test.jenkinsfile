@@ -57,7 +57,8 @@ pipeline {
                 <li>Hostname:       <b>${env.HOSTNAME}</li>
                 <li>IP:       <b>${env.IP_ADDR}</li>
               </ul>
-              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>""",
+              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>
+              <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
         echo "========================================"
@@ -76,33 +77,46 @@ pipeline {
       post {
         success {
           emailext (
-                subject: "SUCCESS: '${params.PR_TITLE}'",
-                mimeType: 'text/html',
-                from: "zabbix@weigandt-consulting.com",
-                body: """<p style="color:green"><b>SUCCESSFUL</b> deployment:</p>
-                          <p>GitHub Pull Request:  <b>${params.PR_TITLE}</b></p>
-                                  <p>from branch:  <b>${params.HEAD_BRANCH}</b></p>
-                                    <p>to branch:  <b>${params.BASE_BRANCH}</b></p>
-                                      <p>by user:  <b>${params.PR_USER}</b></p>
-                                <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
-                to: "${env.email_add1}, ${env.email_add2}"
+            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment succeeded",
+            mimeType: 'text/html',
+            from: "zabbix@weigandt-consulting.com",
+            body: """<h4 style="font-family:tahoma;color:rgb(40,224,31)">SUCCESS.</h4/
+            <ul style="font-family:tahoma;">
+              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
+              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
+              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
+              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
+              <li>By user:        <b>${params.PR_USER}</b>;</li>
+              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
+              <li>Hostname:       <b>${env.HOSTNAME}</li>
+              <li>IP:       <b>${env.IP_ADDR}</li>
+            </ul>
+            <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
+            to: "${env.email_add1}, ${env.email_add2}"
           )
         }
-        /*failure {
+      }
+      failure {
           emailext (
-                subject: "FAILED: '${params.PR_TITLE}'",
-                mimeType: 'text/html',
-                from: "zabbix@weigandt-consulting.com",
-                body: """<p style="color:red"><b>FAILED</b> deployment:</p>
-
-                          <p>GitHub Pull Request:  <b>${params.PR_TITLE}</b></p>
-                                  <p>from branch:  <b>${params.HEAD_BRANCH}</b></p>
-                                    <p>to branch:  <b>${params.BASE_BRANCH}</b></p>
-                                      <p>by user:  <b>${params.PR_USER}</b></p>
-                                <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
-                to: "${env.email_add1}, ${env.email_add2}"
+            attachLog: true, 
+            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment failed",
+            mimeType: 'text/html',
+            from: "zabbix@weigandt-consulting.com",
+            body: """<h4 style="font-family:tahoma;color:rgb(247,32,9)">FAILURE.</h4/
+            <ul style="font-family:tahoma;">
+              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
+              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
+              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
+              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
+              <li>By user:        <b>${params.PR_USER}</b>;</li>
+              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
+              <li>Hostname:       <b>${env.HOSTNAME}</li>
+              <li>IP:       <b>${env.IP_ADDR}</li>
+            </ul>
+            <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
+            to: "${env.email_add1}, ${env.email_add2}"
           )
-        }*/
+        }
       }
     }
     stage('TEST deploy') {
@@ -136,7 +150,8 @@ pipeline {
                 <li>Hostname:       <b>N/A</b>.</li>
               </ul>
               
-              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>""",
+              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>
+              <p> style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
         echo "========================================"
@@ -149,7 +164,6 @@ pipeline {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
       }
-    }
     stage('PROD deploy') {
       agent {
         node {
@@ -197,7 +211,7 @@ pipeline {
       }
     }
   }
-  post {
+  /*post {
     failure {
       node('master') {
         echo 'running post failure action'
@@ -221,5 +235,5 @@ pipeline {
           )
       }
     }
-  }
+  }*/
 }
