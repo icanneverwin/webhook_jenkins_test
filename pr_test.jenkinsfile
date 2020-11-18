@@ -3,7 +3,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
-    DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
+    /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
   }
   stages {
     /*stage('Check Var') {
@@ -24,7 +24,7 @@ pipeline {
     stage('DEV Deploy') {
       agent {
         node {
-          label 'jenkins01'
+          label "jenkins01"
         }
       }
       when {
@@ -42,7 +42,7 @@ pipeline {
       steps {
         emailext (
               subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
-              mimeType: 'text/html',
+              mimeType: "text/html",
               from: "zabbix@weigandt-consulting.com",
               body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
               <ul style="font-family:tahoma;">
