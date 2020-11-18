@@ -95,7 +95,6 @@ pipeline {
             to: "${env.email_add1}, ${env.email_add2}"
           )
         }
-      }
       failure {
           emailext (
             attachLog: true, 
@@ -164,6 +163,7 @@ pipeline {
           echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
         }*/
       }
+    }
     stage('PROD deploy') {
       agent {
         node {
