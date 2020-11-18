@@ -5,7 +5,7 @@ echo "Preparing for RPD file movement"
 echo "Jenkins Workspace is ${WORKSPACE}"
 
 RPD=${WORKSPACE}/liverpd.rpd
-TEMP_DIR=/tmp/jenkins_tmp_data
+TEMP_DIR=/tmp/jenkins_tmp_data/
 
 # check if RPD exists
 if [[ ! -e $RPD ]] ; then
