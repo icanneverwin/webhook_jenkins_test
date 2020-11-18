@@ -158,10 +158,8 @@ pipeline {
     }
   }
   post {
-      success {
-        agent {
-          label 'jenkins01'
-        }
+    success {
+      node('master') {
         emailext (
               subject: "SUCCESS: '${params.PR_TITLE}'",
               mimeType: 'text/html',
@@ -174,12 +172,11 @@ pipeline {
                                     <p>by user:  <b>${params.PR_USER}</b></p>
                               <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
               to: "${env.email_add1}, ${env.email_add2}"
-          )
+        )
       }
-      failure {
-        agent {
-          label 'jenkins01'
-        }
+    }
+    failure {
+      node('master') {
         emailext (
               subject: "FAILED: '${params.PR_TITLE}'",
               mimeType: 'text/html',
@@ -192,7 +189,8 @@ pipeline {
                                     <p>by user:  <b>${params.PR_USER}</b></p>
                               <p>Jenkins build:  <b>${env.BUILD_NUMBER}</b></p>""",
               to: "${env.email_add1}, ${env.email_add2}"
-          )
+        )
       }
+    }
   }
 }
