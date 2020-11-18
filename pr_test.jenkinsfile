@@ -5,8 +5,8 @@ pipeline {
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
     DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
   }
-  /*stages {
-    stage('Check Var') {
+  stages {
+    /*stage('Check Var') {
       steps {
         echo "========================================"
         echo "variables are as folows:"
