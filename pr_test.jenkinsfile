@@ -1,11 +1,11 @@
 pipeline {
-  agent any
+  agent none
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
     DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true)
   }
-  stages {
+  /*stages {
     stage('Check Var') {
       steps {
         echo "========================================"
@@ -20,7 +20,7 @@ pipeline {
         echo "NODE_NAME value is ${env.NODE_NAME}"
         echo "PR_NUM value is ${params.PR_NUM}"
       }
-    }
+    } */
     stage('DEV Deploy') {
       when {
         allOf {
@@ -29,6 +29,11 @@ pipeline {
             expression { params.PR_ACTION ==~ "synchronize" }
           }         
           expression { params.BASE_BRANCH ==~ "develop" }
+        }
+      }
+      agent {
+        node {
+          label 'jenkins01'
         }
       }
       environment {
@@ -74,7 +79,32 @@ pipeline {
           expression { params.REVIEW_STATE ==~ "approved" }
         }
       }
+      agent {
+        node {
+          label 'spbdocker'
+        }
+      }
+      environment {
+        DEPLOY_ENV = 'TEST'
+      }
       steps {
+        emailext (
+              subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
+              mimeType: 'text/html',
+              from: "zabbix@weigandt-consulting.com",
+              body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
+              <ul style="font-family:tahoma;">
+                <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
+                <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
+                <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
+                <li>By user:        <b>${params.PR_USER}</b>;</li>
+                <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
+                <li>Hostname:       <b>N/A</b>.</li>
+              </ul>
+              
+              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>""",
+              to: "${env.email_add1}, ${env.email_add2}"
+        )
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
@@ -95,7 +125,32 @@ pipeline {
           expression { params.REVIEW_STATE ==~ "approved" }
         }
       }
+      agent {
+        node {
+          label 'spbdocker'
+        }
+      }
+      environment {
+        DEPLOY_ENV = 'PROD'
+      }
       steps {
+        emailext (
+              subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
+              mimeType: 'text/html',
+              from: "zabbix@weigandt-consulting.com",
+              body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
+              <ul style="font-family:tahoma;">
+                <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
+                <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
+                <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
+                <li>By user:        <b>${params.PR_USER}</b>;</li>
+                <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
+                <li>Hostname:       <b>N/A</b>.</li>
+              </ul>
+              
+              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>""",
+              to: "${env.email_add1}, ${env.email_add2}"
+        )
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
