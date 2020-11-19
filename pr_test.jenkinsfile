@@ -48,7 +48,7 @@ pipeline {
               to: "${env.email_add1}, ${env.email_add2}"
         )
         script { 
-          showGifDiff("${HEAD_SHA}", "${BASE_SHA}")
+          showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         /* main steps */
         echo "========================================"
@@ -148,7 +148,7 @@ pipeline {
               to: "${env.email_add1}, ${env.email_add2}"
         )
         script { 
-          showGifDiff("${HEAD_SHA}", "${BASE_SHA}")
+          showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
@@ -248,7 +248,7 @@ pipeline {
               to: "${env.email_add1}, ${env.email_add2}"
         )
         script {
-          showGifDiff("${HEAD_SHA}", "${BASE_SHA}")
+          showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
