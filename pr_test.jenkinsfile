@@ -3,7 +3,6 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
-    /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
   }
   /* DEV DEPLOYMENT STAGE */
   stages {
@@ -14,6 +13,7 @@ pipeline {
         }
       }
       when {
+        beforeAgent true
         allOf {
           anyOf{
             expression { params.PR_ACTION ==~ "opened" }
@@ -24,7 +24,6 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'DEV'
-        /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
@@ -48,6 +47,9 @@ pipeline {
               <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
+        script { 
+          showGifDiff("${HEAD_SHA}", "${BASE_SHA}")
+        }
         /* main steps */
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
@@ -113,6 +115,7 @@ pipeline {
         }
       }
       when {
+        beforeAgent true
         allOf {
           expression { params.BASE_BRANCH ==~ "develop" }
           expression { params.PR_ACTION ==~ "submitted" }
@@ -121,7 +124,6 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'TEST'
-        /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
@@ -145,6 +147,9 @@ pipeline {
               <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
+        script { 
+          showGifDiff("${HEAD_SHA}", "${BASE_SHA}")
+        }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
@@ -210,6 +215,7 @@ pipeline {
         }
       }
       when {
+        beforeAgent true
         allOf {
           expression { params.PR_ACTION ==~ "submitted" }
           expression { params.BASE_BRANCH ==~ "main" }
@@ -219,7 +225,6 @@ pipeline {
       }
       environment {
         DEPLOY_ENV = 'PROD'
-        /*DIFF_OBJ_LIST = sh(script: "git diff --name-only --diff-filter=ACMR ${params.BASE_SHA} ${params.HEAD_SHA}", returnStdout: true) */
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
@@ -242,6 +247,9 @@ pipeline {
               <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
+        script {
+          showGifDiff("${HEAD_SHA}", "${BASE_SHA}")
+        }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
         echo "PR_ACTION value is ${params.PR_ACTION}"
@@ -301,3 +309,19 @@ pipeline {
     }
   }
 }
+
+def showGitDiff(String HEAD_SHA, String BASE_SHA) {
+  /*execute git diff command to retrieve diff between input commits */
+  def DIFFLOG = sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA}", returnStdout: true)
+  return DIFFLOG
+}
+
+/*
+def sendStartEmail() {
+
+}
+
+def sendFinalEmail() {
+
+}
+ */
