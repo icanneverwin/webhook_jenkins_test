@@ -1,9 +1,4 @@
-def showGitDiff(String HEAD_SHA, String BASE_SHA) {
-  /*execute git diff command to retrieve diff between input commits */
-  def DIFFLOG = sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA}", returnStdout: true)
-  return DIFFLOG
-}
-
+Map modules = [:]
 pipeline {
   agent none
   environment {
@@ -54,7 +49,9 @@ pipeline {
               to: "${env.email_add1}, ${env.email_add2}"
         )
         script { 
-          showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.showGifDiff = load "showGifDiff.groovy"
+          modules.showGifDiff.showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         /* main steps */
         echo "========================================"
@@ -154,7 +151,9 @@ pipeline {
               to: "${env.email_add1}, ${env.email_add2}"
         )
         script { 
-          showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.showGifDiff = load "showGifDiff.groovy"
+          modules.showGifDiff.showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
@@ -253,8 +252,10 @@ pipeline {
               <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
               to: "${env.email_add1}, ${env.email_add2}"
         )
-        script {
-          showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+        script { 
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.showGifDiff = load "showGifDiff.groovy"
+          modules.showGifDiff.showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
