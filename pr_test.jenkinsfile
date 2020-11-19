@@ -50,8 +50,8 @@ pipeline {
         )
         script { 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGifDiff = load "showGifDiff.groovy"
-          modules.showGifDiff.showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         /* main steps */
         echo "========================================"
@@ -152,8 +152,8 @@ pipeline {
         )
         script { 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGifDiff = load "showGifDiff.groovy"
-          modules.showGifDiff.showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
@@ -254,8 +254,8 @@ pipeline {
         )
         script { 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGifDiff = load "showGifDiff.groovy"
-          modules.showGifDiff.showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
