@@ -31,7 +31,7 @@ pipeline {
       steps {
         /* Sending deployment initialization email */
         script {
-          modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
           modules.emailExtSend.emailExtSend("Start", 
                                             "${env.PR_NUM}",
                                             "${env.DEPLOY_ENV}", 
@@ -65,7 +65,7 @@ pipeline {
       post {
         success {
           script {
-            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
             modules.emailExtSend.emailExtSend("Success", 
                                               "${env.PR_NUM}",
                                               "${env.DEPLOY_ENV}", 
@@ -82,7 +82,7 @@ pipeline {
         }
         failure {
           script {
-            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
             modules.emailExtSend.emailExtSend("Failed", 
                                               "${env.PR_NUM}",
                                               "${env.DEPLOY_ENV}", 
@@ -122,7 +122,7 @@ pipeline {
       steps {
         /* Sending deployment initialization email */
         script {
-          modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
           modules.emailExtSend.emailExtSend("Start", 
                                             "${env.PR_NUM}",
                                             "${env.DEPLOY_ENV}", 
@@ -159,7 +159,7 @@ pipeline {
       post {
         success {
           script {
-            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
             modules.emailExtSend.emailExtSend("Success", 
                                               "${env.PR_NUM}",
                                               "${env.DEPLOY_ENV}", 
@@ -176,7 +176,7 @@ pipeline {
         }
         failure {
           script {
-            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
             modules.emailExtSend.emailExtSend("Failed", 
                                               "${env.PR_NUM}",
                                               "${env.DEPLOY_ENV}", 
@@ -217,7 +217,7 @@ pipeline {
       steps {
         script { 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
           modules.emailExtSend.emailExtSend("Start", 
                                             "${env.PR_NUM}",
                                             "${env.DEPLOY_ENV}", 
@@ -253,7 +253,7 @@ pipeline {
       post {
         success {
           script {
-            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
             modules.emailExtSend.emailExtSend("Success", 
                                               "${env.PR_NUM}",
                                               "${env.DEPLOY_ENV}", 
@@ -270,7 +270,7 @@ pipeline {
         }
         failure {
           script {
-            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
             modules.emailExtSend.emailExtSend("Failed", 
                                               "${env.PR_NUM}",
                                               "${env.DEPLOY_ENV}", 
