@@ -39,9 +39,9 @@ pipeline {
                                             "${params.HEAD_BRANCH}",
                                             "${params.BASE_BRANCH}",
                                             "${params.PR_USER}",
-                                            "${params.BUILD_NUMBER}",
-                                            "${params.HOSTNAME}",
-                                            "${params.IP_ADDR}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
                                             ["${env.email_add1}", "${env.email_add2}"]
                                           )
 
@@ -73,9 +73,9 @@ pipeline {
                                               "${params.HEAD_BRANCH}",
                                               "${params.BASE_BRANCH}",
                                               "${params.PR_USER}",
-                                              "${params.BUILD_NUMBER}",
-                                              "${params.HOSTNAME}",
-                                              "${params.IP_ADDR}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
                                               ["${env.email_add1}", "${env.email_add2}"]
                                             )
           }
@@ -90,9 +90,9 @@ pipeline {
                                               "${params.HEAD_BRANCH}",
                                               "${params.BASE_BRANCH}",
                                               "${params.PR_USER}",
-                                              "${params.BUILD_NUMBER}",
-                                              "${params.HOSTNAME}",
-                                              "${params.IP_ADDR}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
                                               ["${env.email_add1}", "${env.email_add2}"]
                                             )
           }
@@ -130,9 +130,9 @@ pipeline {
                                             "${params.HEAD_BRANCH}",
                                             "${params.BASE_BRANCH}",
                                             "${params.PR_USER}",
-                                            "${params.BUILD_NUMBER}",
-                                            "${params.HOSTNAME}",
-                                            "${params.IP_ADDR}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
                                             ["${env.email_add1}", "${env.email_add2}"]
                                           )
 
@@ -167,9 +167,9 @@ pipeline {
                                               "${params.HEAD_BRANCH}",
                                               "${params.BASE_BRANCH}",
                                               "${params.PR_USER}",
-                                              "${params.BUILD_NUMBER}",
-                                              "${params.HOSTNAME}",
-                                              "${params.IP_ADDR}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
                                               ["${env.email_add1}", "${env.email_add2}"]
                                             )
           }
@@ -184,9 +184,9 @@ pipeline {
                                               "${params.HEAD_BRANCH}",
                                               "${params.BASE_BRANCH}",
                                               "${params.PR_USER}",
-                                              "${params.BUILD_NUMBER}",
-                                              "${params.HOSTNAME}",
-                                              "${params.IP_ADDR}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
                                               ["${env.email_add1}", "${env.email_add2}"]
                                             )
           }
@@ -225,9 +225,9 @@ pipeline {
                                             "${params.HEAD_BRANCH}",
                                             "${params.BASE_BRANCH}",
                                             "${params.PR_USER}",
-                                            "${params.BUILD_NUMBER}",
-                                            "${params.HOSTNAME}",
-                                            "${params.IP_ADDR}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
                                             ["${env.email_add1}", "${env.email_add2}"]
                                           )
 
@@ -261,9 +261,9 @@ pipeline {
                                               "${params.HEAD_BRANCH}",
                                               "${params.BASE_BRANCH}",
                                               "${params.PR_USER}",
-                                              "${params.BUILD_NUMBER}",
-                                              "${params.HOSTNAME}",
-                                              "${params.IP_ADDR}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
                                               ["${env.email_add1}", "${env.email_add2}"]
                                             )
           }
@@ -278,9 +278,9 @@ pipeline {
                                               "${params.HEAD_BRANCH}",
                                               "${params.BASE_BRANCH}",
                                               "${params.PR_USER}",
-                                              "${params.BUILD_NUMBER}",
-                                              "${params.HOSTNAME}",
-                                              "${params.IP_ADDR}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
                                               ["${env.email_add1}", "${env.email_add2}"]
                                             )
           }
