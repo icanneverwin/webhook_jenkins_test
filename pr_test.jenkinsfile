@@ -30,25 +30,21 @@ pipeline {
       }
       steps {
         /* Sending deployment initialization email */
-        emailext (
-              subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
-              mimeType: "text/html",
-              from: "zabbix@weigandt-consulting.com",
-              body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
-              <ul style="font-family:tahoma;">
-                <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-                <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-                <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-                <li>By user:        <b>${params.PR_USER}</b>;</li>
-                <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-                <li>Hostname:       <b>${env.HOSTNAME}</li>
-                <li>IP:       <b>${env.IP_ADDR}</li>
-              </ul>
-              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>
-              <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-              to: "${env.email_add1}, ${env.email_add2}"
-        )
-        script { 
+        script {
+          modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${env.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${params.BUILD_NUMBER}",
+                                            "${params.HOSTNAME}",
+                                            "${params.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"]
+                                          )
+
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
           modules.showGitDiff = load "showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
@@ -68,45 +64,38 @@ pipeline {
       }
       post {
         success {
-          emailext (
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment SUCCEEDED",
-            mimeType: 'text/html',
-            from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(40,224,31)">SUCCESS</h4/
-            <ul style="font-family:tahoma;">
-              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
-              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-              <li>By user:        <b>${params.PR_USER}</b>;</li>
-              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-              <li>Hostname:       <b>${env.HOSTNAME}</li>
-              <li>IP:       <b>${env.IP_ADDR}</li>
-            </ul>
-            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-            to: "${env.email_add1}, ${env.email_add2}"
-          )
+          script {
+            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Success", 
+                                              "${env.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${params.BUILD_NUMBER}",
+                                              "${params.HOSTNAME}",
+                                              "${params.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
         }
         failure {
-          emailext (
-            attachLog: true, 
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment FAILED",
-            mimeType: 'text/html',
-            from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(247,32,9)">FAILURE</h4/
-            <ul style="font-family:tahoma;">
-              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
-              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-              <li>By user:        <b>${params.PR_USER}</b>;</li>
-              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-              <li>Hostname:       <b>${env.HOSTNAME}</li>
-              <li>IP:       <b>${env.IP_ADDR}</li>
-            </ul>
-            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-            to: "${env.email_add1}, ${env.email_add2}"
-          )
+          script {
+            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Failed", 
+                                              "${env.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${params.BUILD_NUMBER}",
+                                              "${params.HOSTNAME}",
+                                              "${params.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
         }
       }
     }
@@ -132,25 +121,24 @@ pipeline {
       }
       steps {
         /* Sending deployment initialization email */
-        emailext (
-              subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
-              mimeType: "text/html",
-              from: "zabbix@weigandt-consulting.com",
-              body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
-              <ul style="font-family:tahoma;">
-                <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-                <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-                <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-                <li>By user:        <b>${params.PR_USER}</b>;</li>
-                <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-                <li>Hostname:       <b>${env.HOSTNAME}</li>
-                <li>IP:       <b>${env.IP_ADDR}</li>
-              </ul>
-              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>
-              <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-              to: "${env.email_add1}, ${env.email_add2}"
-        )
-        script { 
+        script {
+          modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${env.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${params.BUILD_NUMBER}",
+                                            "${params.HOSTNAME}",
+                                            "${params.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"]
+                                          )
+
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
           modules.showGitDiff = load "showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
@@ -170,45 +158,38 @@ pipeline {
       }
       post {
         success {
-          emailext (
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment SUCCEEDED",
-            mimeType: 'text/html',
-            from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(40,224,31)">SUCCESS</h4/
-            <ul style="font-family:tahoma;">
-              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
-              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-              <li>By user:        <b>${params.PR_USER}</b>;</li>
-              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-              <li>Hostname:       <b>${env.HOSTNAME}</li>
-              <li>IP:       <b>${env.IP_ADDR}</li>
-            </ul>
-            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-            to: "${env.email_add1}, ${env.email_add2}"
-          )
+          script {
+            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Success", 
+                                              "${env.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${params.BUILD_NUMBER}",
+                                              "${params.HOSTNAME}",
+                                              "${params.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
         }
         failure {
-          emailext (
-            attachLog: true, 
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment FAILED",
-            mimeType: 'text/html',
-            from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(247,32,9)">FAILURE</h4/
-            <ul style="font-family:tahoma;">
-              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
-              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-              <li>By user:        <b>${params.PR_USER}</b>;</li>
-              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-              <li>Hostname:       <b>${env.HOSTNAME}</li>
-              <li>IP:       <b>${env.IP_ADDR}</li>
-            </ul>
-            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-            to: "${env.email_add1}, ${env.email_add2}"
-          )
+          script {
+            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Failed", 
+                                              "${env.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${params.BUILD_NUMBER}",
+                                              "${params.HOSTNAME}",
+                                              "${params.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
         }
       }
     }
@@ -234,26 +215,25 @@ pipeline {
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
       }
       steps {
-        emailext (
-              subject: "Starting deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment",
-              mimeType: "text/html",
-              from: "zabbix@weigandt-consulting.com",
-              body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub Pull Request</a> has initiated deployment:</h4>
-              <ul style="font-family:tahoma;">
-                <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-                <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-                <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-                <li>By user:        <b>${params.PR_USER}</b>;</li>
-                <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-                <li>Hostname:       <b>${env.HOSTNAME}</li>
-                <li>IP:       <b>${env.IP_ADDR}</li>
-              </ul>
-              <p style="font-family:tahoma;">Files scheduled for deployment can be found <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}/files">here</a>.</p>
-              <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-              to: "${env.email_add1}, ${env.email_add2}"
-        )
         script { 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${env.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${params.BUILD_NUMBER}",
+                                            "${params.HOSTNAME}",
+                                            "${params.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"]
+                                          )
+
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
           modules.showGitDiff = load "showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
@@ -272,45 +252,38 @@ pipeline {
       }
       post {
         success {
-          emailext (
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment SUCCEEDED",
-            mimeType: 'text/html',
-            from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(40,224,31)">SUCCESS</h4/
-            <ul style="font-family:tahoma;">
-              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
-              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-              <li>By user:        <b>${params.PR_USER}</b>;</li>
-              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-              <li>Hostname:       <b>${env.HOSTNAME}</li>
-              <li>IP:       <b>${env.IP_ADDR}</li>
-            </ul>
-            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-            to: "${env.email_add1}, ${env.email_add2}"
-          )
+          script {
+            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Success", 
+                                              "${env.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${params.BUILD_NUMBER}",
+                                              "${params.HOSTNAME}",
+                                              "${params.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
         }
         failure {
-          emailext (
-            attachLog: true, 
-            subject: "Deployment of Pull Request #${params.PR_NUM} to ${env.DEPLOY_ENV} environment FAILED",
-            mimeType: 'text/html',
-            from: "zabbix@weigandt-consulting.com",
-            body: """<h4 style="font-family:tahoma;color:rgb(247,32,9)">FAILURE</h4/
-            <ul style="font-family:tahoma;">
-              <li>PR ref:         <b><a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${params.PR_NUM}">GitHub</a></b>;</li>
-              <li>PR name:        <b>${params.PR_TITLE}</b>;</li>
-              <li>From branch:    <b>${params.HEAD_BRANCH}</b>;</li>
-              <li>To branch:      <b>${params.BASE_BRANCH}</b>;</li>
-              <li>By user:        <b>${params.PR_USER}</b>;</li>
-              <li>Jenkins build:  <b>${env.BUILD_NUMBER}</b>;</li>
-              <li>Hostname:       <b>${env.HOSTNAME}</li>
-              <li>IP:       <b>${env.IP_ADDR}</li>
-            </ul>
-            <p style="font-family:tahoma;">Your friendly neighborhood, Jenkins </p>""",
-            to: "${env.email_add1}, ${env.email_add2}"
-          )
+          script {
+            modules.emailExtSend = load "/jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Failed", 
+                                              "${env.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${params.BUILD_NUMBER}",
+                                              "${params.HOSTNAME}",
+                                              "${params.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
         }
       }
     }
