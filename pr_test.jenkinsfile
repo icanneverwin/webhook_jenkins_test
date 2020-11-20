@@ -46,7 +46,7 @@ pipeline {
                                           )
 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         /* main steps */
@@ -137,10 +137,7 @@ pipeline {
                                           )
 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGitDiff = load "showGitDiff.groovy"
-          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
-          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
@@ -232,9 +229,7 @@ pipeline {
                                           )
 
           /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.showGitDiff = load "showGitDiff.groovy"
-          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
-          modules.showGitDiff = load "showGitDiff.groovy"
+          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
         echo "========================================"
