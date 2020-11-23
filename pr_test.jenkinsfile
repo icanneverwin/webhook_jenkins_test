@@ -231,6 +231,12 @@ pipeline {
                                           )
           modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+
+          env.RPD_BUILD = modules.showGitDiff.rpdDiff()
+          env.WEB_BUILD = modules.showGitDiff.webDiff()
+          env.DB_BUILD = modules.showGitDiff.dbDiff()
+          env.SHELL_BUILD = modules.showGitDiff.shDiff()
+
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
@@ -244,10 +250,10 @@ pipeline {
         echo "Executing move_rpd.sh script"
         sh 'chmod +x ./move_rpd.sh'
         sh './move_rpd.sh'
-        echo "RPD_BUILD value is ${RPD_BUILD}"
-        echo "WEB_BUILD value is ${WEB_BUILD}"
-        echo "DB_BUILD value is ${DB_BUILD}"
-        echo "SHELL_BUILD value is ${SHELL_BUILD}"
+        echo "RPD_BUILD value is ${env.RPD_BUILD}"
+        echo "WEB_BUILD value is ${env.WEB_BUILD}"
+        echo "DB_BUILD value is ${env.DB_BUILD}"
+        echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
 
         //TODO: amend showgitdiff to create files based on GREP for further deployment control
         //TODO: add nested stages with WHEN validation to initiate each deployment type
