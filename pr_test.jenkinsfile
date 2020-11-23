@@ -1,42 +1,309 @@
-def deploylist = "difflog.txt"
-
-def showGitDiff(String HEAD_SHA, String BASE_SHA) {
-  /*execute git diff command to retrieve diff between input commits */
-  /*def DIFFLOG = sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA}", returnStdout: true) */
-
-  // create difflog.txt file
-  sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA} > ${deploylist}", returnStdout: true)
-}
-
-def rpdDiff() {
-  def RPD_BUILD = false
-  if (sh(script: "grep -e liverpd ${deploylist}", returnStatus: true) == "0") {
-    RPD_BUILD = true
+Map modules = [:]
+pipeline {
+  agent none
+  environment {
+    email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
+    email_add2 = 'konstantin.orlov@weigandt-consulting.com'
+    /*RPD_BUILD = false
+    WEB_BUILD = false
+    DB_BUILD = false
+    SHELL_BUILD = false */
   }
-  return RPD_BUILD
-}
+  /* DEV DEPLOYMENT STAGE */
+  stages {
+    stage('DEV Deploy') {
+      agent {
+        node {
+          label "jenkins01"
+        }
+      }
+      when {
+        beforeAgent true
+        allOf {
+          anyOf{
+            expression { params.PR_ACTION ==~ "opened" }
+            expression { params.PR_ACTION ==~ "synchronize" }
+          }         
+          expression { params.BASE_BRANCH ==~ "develop" }
+        }
+      }
+      environment {
+        DEPLOY_ENV = 'DEV'
+        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
+      }
+      steps {
+        /* Sending deployment initialization email */
+        script {
+          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${params.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"]
+                                          )
+          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+        }
+        /* main steps */
+        echo "========================================"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        /*withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }*/
+        echo "Executing move_rpd.sh script"
+        sh 'chmod +x ./move_rpd.sh'
+        sh './move_rpd.sh'
+      }
+      post {
+        success {
+          script {
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Success", 
+                                              "${params.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
+        }
+        failure {
+          script {
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Failed", 
+                                              "${params.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
+        }
+      }
+    }
+    /* TEST DEPLOYMENT STAGE */
+    stage('TEST deploy') {
+      agent {
+        node {
+          label 'spbdocker'
+        }
+      }
+      when {
+        beforeAgent true
+        allOf {
+          expression { params.BASE_BRANCH ==~ "develop" }
+          expression { params.PR_ACTION ==~ "submitted" }
+          expression { params.REVIEW_STATE ==~ "approved" }
+        }
+      }
+      environment {
+        DEPLOY_ENV = 'TEST'
+        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
+      }
+      steps {
+        /* Sending deployment initialization email */
+        script {
+          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${params.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"]
+                                          )
 
-def webDiff() {
-  def WEB_BUILD = false
-  if (sh(script: "grep -e WEB/ ${deploylist}", returnStatus: true) == "0") {
-    WEB_BUILD = true
-  }
-  return WEB_BUILD
-}
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+        }
+        echo "========================================"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.EAD_BRANCH}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+        /*withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }*/
+        echo "Executing move_rpd.sh script"
+        sh 'chmod +x ./move_rpd.sh'
+        sh './move_rpd.sh'
+      }
+      post {
+        success {
+          script {
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Success", 
+                                              "${params.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
+        }
+        failure {
+          script {
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Failed", 
+                                              "${params.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
+        }
+      }
+    }
+    /* PROD DEPLOYMENT STAGE */
+    stage('PROD deploy') {
+      agent {
+        node {
+          label 'spbdocker'
+        }
+      }
+      when {
+        beforeAgent true
+        allOf {
+          expression { params.PR_ACTION ==~ "submitted" }
+          expression { params.BASE_BRANCH ==~ "main" }
+          expression { params.HEAD_BRANCH ==~ "develop" }
+          expression { params.REVIEW_STATE ==~ "approved" }
+        }
+      }
+      environment {
+        DEPLOY_ENV = 'PROD'
+        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
+      }
+      steps {
+        script { 
+          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${params.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"]
+                                          )
+          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
 
-def dbDiff() {
-  def DB_BUILD = false
-  if (sh(script: "grep -e DB/ ${deploylist}", returnStatus: true) == "0") {
-    DB_BUILD = true
-  }
-  return DB_BUILD
-}
+          env.RPD_BUILD = modules.showGitDiff.rpdDiff()
+          env.WEB_BUILD = modules.showGitDiff.webDiff()
+          env.DB_BUILD = modules.showGitDiff.dbDiff()
+          env.SHELL_BUILD = modules.showGitDiff.shDiff()
 
-def shDiff() {
-  def SHELL_BUILD = false
-  if (sh(script: "grep -e SHELL/ ${deploylist}", returnStatus: true) == "0") {
-    SHELL_BUILD = true
+        }
+        echo "========================================"
+        echo "deployment to ${env.DEPLOY_ENV} is happening"
+        echo "PR_ACTION value is ${params.PR_ACTION}"
+        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+        /*withEnv(["DEPLOY_ENV=DEV"]) {
+          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+        }*/
+        echo "Executing move_rpd.sh script"
+        sh 'chmod +x ./move_rpd.sh'
+        sh './move_rpd.sh'
+        echo "RPD_BUILD value is ${env.RPD_BUILD}"
+        echo "WEB_BUILD value is ${env.WEB_BUILD}"
+        echo "DB_BUILD value is ${env.DB_BUILD}"
+        echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
+
+        //TODO: amend showgitdiff to create files based on GREP for further deployment control
+        //TODO: add nested stages with WHEN validation to initiate each deployment type
+        
+        //echo "###########################################"
+        //echo "Testing variable assignment"
+        //echo "assigning value via 'script'"
+        //script {
+        //  env.RPD_BUILD = false
+        //}
+        //echo "variable env.RPD_BUILD is ${env.RPD_BUILD}"
+        //echo "changing value via shell"
+        //env.RPD_BUILD = sh(script: if )
+      }
+      post {
+        success {
+          script {
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Success", 
+                                              "${params.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
+        }
+        failure {
+          script {
+            modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+            modules.emailExtSend.emailExtSend("Failed", 
+                                              "${params.PR_NUM}",
+                                              "${env.DEPLOY_ENV}", 
+                                              "${params.PR_TITLE}", 
+                                              "${params.HEAD_BRANCH}",
+                                              "${params.BASE_BRANCH}",
+                                              "${params.PR_USER}",
+                                              "${env.BUILD_NUMBER}",
+                                              "${env.HOSTNAME}",
+                                              "${env.IP_ADDR}",
+                                              ["${env.email_add1}", "${env.email_add2}"]
+                                            )
+          }
+        }
+      }
+    }
   }
-  return SHELL_BUILD
 }
-return this
