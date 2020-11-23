@@ -24,7 +24,7 @@ def webDiff() {
   return WEB_BUILD
 }
 
-def dbDeployDiff() {
+def dbDiff() {
   def DB_BUILD = false
   if (sh(script: "grep -e DB/ ${deploylist}", returnStatus: true) == "0") {
     DB_BUILD = true
@@ -32,7 +32,7 @@ def dbDeployDiff() {
   return DB_BUILD
 }
 
-def dbDeployDiff() {
+def shDiff() {
   def SHELL_BUILD = false
   if (sh(script: "grep -e SHELL/ ${deploylist}", returnStatus: true) == "0") {
     SHELL_BUILD = true
