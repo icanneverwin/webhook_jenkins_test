@@ -4,6 +4,10 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
+    /*RPD_BUILD = false
+    WEB_BUILD = false
+    DB_BUILD = false
+    SHELL_BUILD = false */
   }
   /* DEV DEPLOYMENT STAGE */
   stages {
@@ -44,8 +48,6 @@ pipeline {
                                             "${env.IP_ADDR}",
                                             ["${env.email_add1}", "${env.email_add2}"]
                                           )
-
-          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
           modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
@@ -227,8 +229,6 @@ pipeline {
                                             "${env.IP_ADDR}",
                                             ["${env.email_add1}", "${env.email_add2}"]
                                           )
-
-          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
           modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
         }
@@ -244,6 +244,23 @@ pipeline {
         echo "Executing move_rpd.sh script"
         sh 'chmod +x ./move_rpd.sh'
         sh './move_rpd.sh'
+        echo "RPD_BUILD value is ${RPD_BUILD}"
+        echo "WEB_BUILD value is ${WEB_BUILD}"
+        echo "DB_BUILD value is ${DB_BUILD}"
+        echo "SHELL_BUILD value is ${SHELL_BUILD}"
+
+        //TODO: amend showgitdiff to create files based on GREP for further deployment control
+        //TODO: add nested stages with WHEN validation to initiate each deployment type
+        
+        //echo "###########################################"
+        //echo "Testing variable assignment"
+        //echo "assigning value via 'script'"
+        //script {
+        //  env.RPD_BUILD = false
+        //}
+        //echo "variable env.RPD_BUILD is ${env.RPD_BUILD}"
+        //echo "changing value via shell"
+        //env.RPD_BUILD = sh(script: if )
       }
       post {
         success {
