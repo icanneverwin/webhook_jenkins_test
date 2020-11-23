@@ -10,7 +10,7 @@ def showGitDiff(String HEAD_SHA, String BASE_SHA) {
 
 def rpdDiff() {
   def RPD_BUILD = false
-  if (sh(script: "grep -e liverpd ${deploylist}", returnStatus: true) == "0")) {
+  if (sh(script: "grep -e liverpd ${deploylist}", returnStatus: true) == "0") {
     RPD_BUILD = true
   }
   return RPD_BUILD
