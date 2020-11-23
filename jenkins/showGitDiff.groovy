@@ -11,16 +11,16 @@ def showGitDiff(String HEAD_SHA, String BASE_SHA) {
   sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA} > ${deploylist}", returnStdout: true)
 
   // identify deployment type based on extracted diff
-  if ((sh(script: "grep -e liverpd ${deploylist}"), returnStatus: true) == "0") {
+  if (sh(script: "grep -e liverpd ${deploylist}", returnStatus: true) == "0") {
     RPD_BUILD = true
   }
-  else if ((sh(script: "grep -e WEB/ ${deploylist}"), returnStatus: true) == "0") {
+  else if (sh(script: "grep -e WEB/ ${deploylist}", returnStatus: true) == "0") {
     WEB_BUILD = true
   }
-  else if ((sh(script: "grep -e DB/ ${deploylist}"), returnStatus: true) == "0") {
+  else if (sh(script: "grep -e DB/ ${deploylist}", returnStatus: true) == "0") {
     DB_BUILD = true
   }
-  else if ((sh(script: "grep -e SHELL/ ${deploylist}"), returnStatus: true) == "0") {
+  else if (sh(script: "grep -e SHELL/ ${deploylist}", returnStatus: true) == "0") {
     SHELL_BUILD = true
   }
 }
