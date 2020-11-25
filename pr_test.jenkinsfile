@@ -211,101 +211,164 @@ pipeline {
       environment {
         DEPLOY_ENV = 'PROD'
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
-        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
+        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)        
       }
-      steps {
-        script { 
-          /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
-          modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
-          modules.emailExtSend.emailExtSend("Start", 
-                                            "${params.PR_NUM}",
-                                            "${env.DEPLOY_ENV}", 
-                                            "${params.PR_TITLE}", 
-                                            "${params.HEAD_BRANCH}",
-                                            "${params.BASE_BRANCH}",
-                                            "${params.PR_USER}",
-                                            "${env.BUILD_NUMBER}",
-                                            "${env.HOSTNAME}",
-                                            "${env.IP_ADDR}",
-                                            ["${env.email_add1}", "${env.email_add2}"]
-                                          )
-          modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
-          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
-
-          env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
-          env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
-          env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
-          env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
+      //TODO: add nested stages with WHEN validation to initiate each deployment type
+      stages {
+        stage('difflog-generate') {
+          steps {
+            script {
+              // send email about initiated deployment
+              modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+              modules.emailExtSend.emailExtSend("Start", 
+                                                "${params.PR_NUM}",
+                                                "${env.DEPLOY_ENV}", 
+                                                "${params.PR_TITLE}", 
+                                                "${params.HEAD_BRANCH}",
+                                                "${params.BASE_BRANCH}",
+                                                "${params.PR_USER}",
+                                                "${env.BUILD_NUMBER}",
+                                                "${env.HOSTNAME}",
+                                                "${env.IP_ADDR}",
+                                                ["${env.email_add1}", "${env.email_add2}"])
+              // diff extract
+              modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
+              modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+              env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
+              env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
+              env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
+              env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
+            }
+            echo "RPD_BUILD value is ${env.RPD_BUILD}"
+            echo "WEB_BUILD value is ${env.WEB_BUILD}"
+            echo "DB_BUILD value is ${env.DB_BUILD}"
+            echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
+          }           
         }
-        echo "========================================"
-        echo "deployment to ${env.DEPLOY_ENV} is happening"
-        echo "PR_ACTION value is ${params.PR_ACTION}"
-        echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
-        echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
-        echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
-        /*withEnv(["DEPLOY_ENV=DEV"]) {
-          echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
-        }*/
-        echo "Executing move_rpd.sh script"
-        sh 'chmod +x ./move_rpd.sh'
-        sh './move_rpd.sh'
-        echo "RPD_BUILD value is ${env.RPD_BUILD}"
-        echo "WEB_BUILD value is ${env.WEB_BUILD}"
-        echo "DB_BUILD value is ${env.DB_BUILD}"
-        echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
-
-
-        //TODO: add nested stages with WHEN validation to initiate each deployment type
-
-        // nested stages for each deployment type
-        //echo "###########################################"
-        //echo "Testing variable assignment"
-        //echo "assigning value via 'script'"
-        //script {
-        //  env.RPD_BUILD = false
-        //}
-        //echo "variable env.RPD_BUILD is ${env.RPD_BUILD}"
-        //echo "changing value via shell"
-        //env.RPD_BUILD = sh(script: if )
+        stage('rpd-deploy') {
+          when {
+            expression {
+              return ${env.RPD_BUILD}
+            }
+          }
+          steps {
+            echo "RPD build is initiated"
+          }
+        }
+        stage('webcatalog-deploy') {
+          when {
+            expression {
+              return ${env.WEB_BUILD}
+            }
+          }
+          steps {
+            echo "WEB build is initiated"
+          }
+        }
+        stage('db-deploy') {
+          when {
+            expression {
+              return ${env.DB_BUILD}
+            }
+          }
+          steps {
+            echo "DB build is initiated"
+          }
+        }
+        stage('batch-deploy') {
+          when {
+            expression {
+              return ${env.SHELL_BUILD}
+            }
+          }
+          steps {
+            echo "SHELL build is initiated"
+          }
+        }
       }
-      //stages {
-      //  stage('RPD Deployment') {
-      //    when {
-      //      //beforeAgent true
-      //      expression { return env.RPD_BUILD.toBoolean() }
-      //    }
-      //    steps {
-      //      echo "RPD deployment is activated"
-      //    }
+
+      //steps {
+      //  script { 
+      //    /*showGifDiff("${params.HEAD_SHA}", "${params.BASE_SHA}") */
+      //    modules.emailExtSend = load "./jenkins/emailExtSend.groovy"
+      //    modules.emailExtSend.emailExtSend("Start", 
+      //                                      "${params.PR_NUM}",
+      //                                      "${env.DEPLOY_ENV}", 
+      //                                      "${params.PR_TITLE}", 
+      //                                      "${params.HEAD_BRANCH}",
+      //                                      "${params.BASE_BRANCH}",
+      //                                      "${params.PR_USER}",
+      //                                      "${env.BUILD_NUMBER}",
+      //                                      "${env.HOSTNAME}",
+      //                                      "${env.IP_ADDR}",
+      //                                      ["${env.email_add1}", "${env.email_add2}"]
+      //                                    )
+      //    modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
+      //    //modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+//
+      //    //env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
+      //    //env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
+      //    //env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
+      //    //env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
       //  }
-      //  stage('WEB Deployment') {
-      //    when {
-      //      //beforeAgent true
-      //      expression { return env.WEB_BUILD.toBoolean() }
-      //    }
-      //    steps {
-      //      echo "WEB deployment is activated"
-      //    }
-      //  }
-      //  stage('DB Deployment') {
-      //    when {
-      //      //beforeAgent true
-      //      expression { return env.DB_BUILD.toBoolean() }
-      //    }
-      //    steps {
-      //      echo "DB deployment is activated"
-      //    }
-      //  }
-      //  stage('Shell Deployment') {
-      //    when {
-      //      //beforeAgent true
-      //      expression { return env.SHELL_BUILD.toBoolean() }
-      //    }
-      //    steps {
-      //      echo "Shell Deployment is activated"
-      //    }
-      //  }
+      //  echo "========================================"
+      //  echo "deployment to ${env.DEPLOY_ENV} is happening"
+      //  echo "PR_ACTION value is ${params.PR_ACTION}"
+      //  echo "BASE_BRANCH value is ${params.BASE_BRANCH}"
+      //  echo "HEAD_BRANCH value is ${params.HEAD_BRANCH}"
+      //  echo "REVIEW_STATE value is ${params.REVIEW_STATE}"
+      //  /*withEnv(["DEPLOY_ENV=DEV"]) {
+      //    echo "DEPLOY_ENV = ${env.DEPLOY_ENV}"
+      //  }*/
+      //  echo "Executing move_rpd.sh script"
+      //  sh 'chmod +x ./move_rpd.sh'
+      //  sh './move_rpd.sh'
+      //  echo "RPD_BUILD value is ${env.RPD_BUILD}"
+      //  echo "WEB_BUILD value is ${env.WEB_BUILD}"
+      //  echo "DB_BUILD value is ${env.DB_BUILD}"
+      //  echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
       //}
+
+    
+
+      /*stages {
+        stage('RPD Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.RPD_BUILD.toBoolean() }
+          }
+          steps {
+            echo "RPD deployment is activated"
+          }
+        }
+        stage('WEB Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.WEB_BUILD.toBoolean() }
+          }
+          steps {
+            echo "WEB deployment is activated"
+          }
+        }
+        stage('DB Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.DB_BUILD.toBoolean() }
+          }
+          steps {
+            echo "DB deployment is activated"
+          }
+        }
+        stage('Shell Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.SHELL_BUILD.toBoolean() }
+          }
+          steps {
+            echo "Shell Deployment is activated"
+          }
+        }
+      } */
       post {
         success {
           script {
