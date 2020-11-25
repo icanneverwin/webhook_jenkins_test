@@ -1,5 +1,3 @@
-def deploylist = "difflog.txt"
-
 def showGitDiff(String HEAD_SHA, String BASE_SHA) {
   /*execute git diff command to retrieve diff between input commits */
   /*def DIFFLOG = sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA}", returnStdout: true) */
@@ -8,35 +6,20 @@ def showGitDiff(String HEAD_SHA, String BASE_SHA) {
   sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA} > difflog.txt", returnStdout: true)
 }
 
-def rpdDiff() {
-  def RPD_BUILD = false
-  if (sh(script: "grep -e rpd difflog.txt", returnStatus: true) == 0) {
-    RPD_BUILD = true
-  }
-  return RPD_BUILD
-}
 
-def webDiff() {
-  def WEB_BUILD = false
-  if (sh(script: "grep -e WEB/ difflog.txt", returnStatus: true) == "0") {
-    WEB_BUILD = true
+def deployInit(String type) {
+  def difflog = "difflog.txt"
+  if (type == 'RPD') {
+    return (sh(script: "grep -e rpd ${difflog}", returnStatus: true) == 0) ? true : false
   }
-  return WEB_BUILD
-}
-
-def dbDiff() {
-  def DB_BUILD = false
-  if (sh(script: "grep -e DB/ difflog.txt", returnStatus: true) == "0") {
-    DB_BUILD = true
+  else if (type == 'WEB') {
+    return (sh(script: "grep -e rpd ${difflog}", returnStatus: true) == 0) ? true : false
   }
-  return DB_BUILD
-}
-
-def shDiff() {
-  def SHELL_BUILD = false
-  if (sh(script: "grep -e SHELL/ difflog.txt", returnStatus: true) == "0") {
-    SHELL_BUILD = true
+  else if (type == 'DB') {
+    return (sh(script: "grep -e DB/ ${difflog}", returnStatus: true) == 0) ? true : false
   }
-  return SHELL_BUILD
+  else if (type == 'SHELL') {
+    return (sh(script: "grep -e SHELL/ ${difflog}", returnStatus: true) == 0) ? true : false
+  }
 }
 return this
