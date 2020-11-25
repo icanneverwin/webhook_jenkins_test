@@ -253,6 +253,7 @@ pipeline {
           }
           steps {
             echo "RPD build is initiated"
+            echo "${env.RPD_BUILD}"
           }
         }
         stage('webcatalog-deploy') {
@@ -263,6 +264,7 @@ pipeline {
           }
           steps {
             echo "WEB build is initiated"
+            echo "${env.WEB_BUILD}"
           }
         }
         stage('db-deploy') {
@@ -273,6 +275,7 @@ pipeline {
           }
           steps {
             echo "DB build is initiated"
+            echo "${env.DB_BUILD}"
           }
         }
         stage('batch-deploy') {
@@ -283,6 +286,7 @@ pipeline {
           }
           steps {
             echo "SHELL build is initiated"
+            echo "${env.SHELL_BUILD}"
           }
         }
       }
