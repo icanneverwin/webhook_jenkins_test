@@ -232,11 +232,10 @@ pipeline {
           modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
 
-          env.RPD_BUILD = modules.showGitDiff.rpdDiff()
-          env.WEB_BUILD = modules.showGitDiff.webDiff()
-          env.DB_BUILD = modules.showGitDiff.dbDiff()
-          env.SHELL_BUILD = modules.showGitDiff.shDiff()
-
+          env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
+          env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
+          env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
+          env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
@@ -255,9 +254,48 @@ pipeline {
         echo "DB_BUILD value is ${env.DB_BUILD}"
         echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
 
-        //TODO: amend showgitdiff to create files based on GREP for further deployment control
+
         //TODO: add nested stages with WHEN validation to initiate each deployment type
-        
+
+        // nested stages for each deployment type
+        stages {
+          stage('RPD Deployment') {
+            when {
+              //beforeAgent true
+              expression { return env.RPD_BUILD.toBoolean() }
+            }
+            steps {
+              echo "RPD deployment is activated"
+            }
+          }
+          stage('WEB Deployment') {
+            when {
+              //beforeAgent true
+              expression { return env.WEB_BUILD.toBoolean() }
+            }
+            steps {
+              echo "WEB deployment is activated"
+            }
+          }
+          stage('DB Deployment') {
+            when {
+              //beforeAgent true
+              expression { return env.DB_BUILD.toBoolean() }
+            }
+            steps {
+              echo "DB deployment is activated"
+            }
+          }
+          stage('Shell Deployment') {
+            when {
+              //beforeAgent true
+              expression { return env.SHELL_BUILD.toBoolean() }
+            }
+            steps {
+              echo "Shell Deployment is activated"
+            }
+          }
+        }
         //echo "###########################################"
         //echo "Testing variable assignment"
         //echo "assigning value via 'script'"
