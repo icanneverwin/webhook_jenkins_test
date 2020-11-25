@@ -212,6 +212,11 @@ pipeline {
         DEPLOY_ENV = 'PROD'
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
+        DIFFLOG = script {
+                            modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
+                            modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+                        }
+        
       }
       steps {
         script { 
@@ -230,7 +235,7 @@ pipeline {
                                             ["${env.email_add1}", "${env.email_add2}"]
                                           )
           modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
-          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          //modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
 
           env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
           env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
@@ -268,7 +273,7 @@ pipeline {
         //echo "changing value via shell"
         //env.RPD_BUILD = sh(script: if )
       }
-      stages {
+      /*stages {
         stage('RPD Deployment') {
           when {
             //beforeAgent true
@@ -305,7 +310,7 @@ pipeline {
             echo "Shell Deployment is activated"
           }
         }
-      }
+      } */
       post {
         success {
           script {
