@@ -248,7 +248,7 @@ pipeline {
         stage('rpd-deploy') {
           when {
             expression {
-              return "${env.RPD_BUILD}"
+              return "${env.RPD_BUILD}".toBoolean()
             }
           }
           steps {
@@ -259,7 +259,7 @@ pipeline {
         stage('webcatalog-deploy') {
           when {
             expression {
-              return "${env.WEB_BUILD}"
+              return "${env.WEB_BUILD}".toBoolean()
             }
           }
           steps {
@@ -270,7 +270,7 @@ pipeline {
         stage('db-deploy') {
           when {
             expression {
-              return "${env.DB_BUILD}"
+              return "${env.DB_BUILD}".toBoolean()
             }
           }
           steps {
@@ -281,7 +281,7 @@ pipeline {
         stage('batch-deploy') {
           when {
             expression {
-              return "${env.SHELL_BUILD}"
+              return "${env.SHELL_BUILD}".toBoolean()
             }
           }
           steps {
