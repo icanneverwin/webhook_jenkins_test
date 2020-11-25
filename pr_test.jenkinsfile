@@ -212,7 +212,7 @@ pipeline {
         DEPLOY_ENV = 'PROD'
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
-        DIFFLOG = script {
+        DIFFLOG = script {  returnStatus: true,
                             modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
                             modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
                         }
@@ -237,10 +237,10 @@ pipeline {
           modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
           //modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
 
-          env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
-          env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
-          env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
-          env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
+          //env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
+          //env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
+          //env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
+          //env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
         }
         echo "========================================"
         echo "deployment to ${env.DEPLOY_ENV} is happening"
