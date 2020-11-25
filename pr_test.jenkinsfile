@@ -212,7 +212,7 @@ pipeline {
         DEPLOY_ENV = 'PROD'
         HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
         IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
-        DIFFLOG = script {  returnStatus: true,
+        DIFFLOG = script {
                             modules.showGitDiff = load "./jenkins/showGitDiff.groovy"
                             modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
                         }
