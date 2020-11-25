@@ -258,44 +258,6 @@ pipeline {
         //TODO: add nested stages with WHEN validation to initiate each deployment type
 
         // nested stages for each deployment type
-        stages {
-          stage('RPD Deployment') {
-            when {
-              //beforeAgent true
-              expression { return env.RPD_BUILD.toBoolean() }
-            }
-            steps {
-              echo "RPD deployment is activated"
-            }
-          }
-          stage('WEB Deployment') {
-            when {
-              //beforeAgent true
-              expression { return env.WEB_BUILD.toBoolean() }
-            }
-            steps {
-              echo "WEB deployment is activated"
-            }
-          }
-          stage('DB Deployment') {
-            when {
-              //beforeAgent true
-              expression { return env.DB_BUILD.toBoolean() }
-            }
-            steps {
-              echo "DB deployment is activated"
-            }
-          }
-          stage('Shell Deployment') {
-            when {
-              //beforeAgent true
-              expression { return env.SHELL_BUILD.toBoolean() }
-            }
-            steps {
-              echo "Shell Deployment is activated"
-            }
-          }
-        }
         //echo "###########################################"
         //echo "Testing variable assignment"
         //echo "assigning value via 'script'"
@@ -305,6 +267,44 @@ pipeline {
         //echo "variable env.RPD_BUILD is ${env.RPD_BUILD}"
         //echo "changing value via shell"
         //env.RPD_BUILD = sh(script: if )
+      }
+      stages {
+        stage('RPD Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.RPD_BUILD.toBoolean() }
+          }
+          steps {
+            echo "RPD deployment is activated"
+          }
+        }
+        stage('WEB Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.WEB_BUILD.toBoolean() }
+          }
+          steps {
+            echo "WEB deployment is activated"
+          }
+        }
+        stage('DB Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.DB_BUILD.toBoolean() }
+          }
+          steps {
+            echo "DB deployment is activated"
+          }
+        }
+        stage('Shell Deployment') {
+          when {
+            //beforeAgent true
+            expression { return env.SHELL_BUILD.toBoolean() }
+          }
+          steps {
+            echo "Shell Deployment is activated"
+          }
+        }
       }
       post {
         success {
