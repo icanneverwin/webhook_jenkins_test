@@ -10,16 +10,16 @@ def showGitDiff(String HEAD_SHA, String BASE_SHA) {
 def deployInit(String type) {
   def difflog = "difflog.txt"
   if (type == 'RPD') {
-    return (sh(script: "grep -e rpd ${difflog}", returnStatus: true) == 0) ? true : false
+    return (sh(script: "grep -e Application/Patches/ ${difflog}", returnStatus: true) == 0) ? true : false
   }
   else if (type == 'WEB') {
-    return (sh(script: "grep -e rpd ${difflog}", returnStatus: true) == 0) ? true : false
+    return (sh(script: "grep -e Application/Webcatalog/ ${difflog}", returnStatus: true) == 0) ? true : false
   }
   else if (type == 'DB') {
-    return (sh(script: "grep -e DB/ ${difflog}", returnStatus: true) == 0) ? true : false
+    return (sh(script: "grep -e RMS/DB/ ${difflog}", returnStatus: true) == 0) ? true : false
   }
   else if (type == 'SHELL') {
-    return (sh(script: "grep -e SHELL/ ${difflog}", returnStatus: true) == 0) ? true : false
+    return (sh(script: "grep -e RMS/Scripts/ ${difflog}", returnStatus: true) == 0) ? true : false
   }
 }
 return this
