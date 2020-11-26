@@ -11,7 +11,7 @@ def emailExtSend(String type,
                  List email_addrs) {
     if (type == "Start") {
         emailext (
-            subject: "Starting deployment of Pull Request ${pr_num} to ${deploy_env} environment",
+            subject: "Starting deployment of Pull Request #${pr_num} to ${deploy_env} environment",
             mimeType: "text/html",
             from: "zabbix@weigandt-consulting.com",
             body: """<h4 style="font-family:tahoma;">The following <a href="https://github.com/icanneverwin/webhook_jenkins_test/pull/${pr_num}">GitHub Pull Request</a> has initiated deployment:</h4>
