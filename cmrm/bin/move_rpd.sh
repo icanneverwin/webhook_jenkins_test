@@ -5,7 +5,7 @@ echo "Preparing for RPD file movement"
 echo "Jenkins Workspace is ${WORKSPACE}"
 
 DIFFLOG_LOCATION="${WORKSPACE}/difflog.txt"
-RPD_PREFIX="Applicacation/Patches"
+RPD_PREFIX="Application/Patches"
 DEST_DIR="${WORKSPACE}/Application/RPD"
 RPD_FILE="${WORKSPACE}/tmp/liverpd_$(date +"%Y%m%d_%H%M")"
 
