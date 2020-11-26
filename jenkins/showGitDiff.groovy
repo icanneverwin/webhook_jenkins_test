@@ -3,7 +3,7 @@ def showGitDiff(String HEAD_SHA, String BASE_SHA) {
   /*def DIFFLOG = sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA}", returnStdout: true) */
   // create difflog.txt file
   //return ((sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA} > difflog.txt", returnStatus: true)) == 0) ? true : false
-  sh(script: "git diff --name-only --diff-filter=ACMR ${HEAD_SHA}...${BASE_SHA} > difflog.txt", returnStdout: true)
+  sh(script: "git diff --name-only --diff-filter=ACMR ${BASE_SHA}...${HEAD_SHA} > difflog.txt", returnStdout: true)
 }
 
 
