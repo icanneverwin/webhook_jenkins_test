@@ -57,7 +57,7 @@ exit 1
 fi
 
 
-git_push "${DEST_DIR}"/"${RPD_FILE}" "${GIT_BRANCH}" "${params.PR_TITLE}"
+git_push "${DEST_DIR}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}"
 RC=$?
 if [[ $RC -eq 0 ]] ; then 
   echo "pushed to repo successfully"
