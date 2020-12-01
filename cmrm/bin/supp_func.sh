@@ -2,9 +2,14 @@
 
 git_push() {
   # push file to the branch
+
   FILENAME=$1
   BRANCH=$2
   COMMIT_TITLE=$3
+
+  echo "filename is ${FILENAME}"
+  echo "BRANCH is ${BRANCH}"
+  echo "COMMIT_TITLE is ${COMMIT_TITLE}"
 
   #DEST_BRANCH="rpd_prod"
 
