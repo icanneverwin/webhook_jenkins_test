@@ -1,22 +1,15 @@
 #!/bin/bash
 
-. ${WORKSPACE}/cmrm/bin/supp_func.sh
-
 ###
 echo "Preparing for RPD file movement"
 echo "Jenkins Workspace is ${WORKSPACE}"
 
 DIFFLOG_LOCATION="${WORKSPACE}/difflog.txt"
-PATCH_PREFIX="Application/Patches"
-RPD_PREFIX="Application/RPD"
+RPD_PREFIX="Application/Patches"
+DEST_DIR="${WORKSPACE}/Application/RPD"
+RPD_FILE="${WORKSPACE}/tmp/liverpd_$(date +"%Y%m%d_%H%M")"
 
-DEST_DIR="${WORKSPACE}"/"${RPD_PREFIX}"
-#RPD_FILE="${WORKSPACE}/tmp/liverpd_$(date +"%Y%m%d_%H%M")"
-RPD_FILE="liverpd_$(date +"%Y%m%d_%H%M")"
-
-GIT_BRANCH="rpd_prod"
-
-DIFFLOG=$(grep -E "^${PATCH_PREFIX}" "${DIFFLOG_LOCATION}")
+DIFFLOG=$(grep -E "^${RPD_PREFIX}" "${DIFFLOG_LOCATION}")
 
 if [[ -z ${DIFFLOG} ]] ; then
   echo "INFO : Difflog is empty or no files fetched from a repository."
@@ -34,39 +27,29 @@ fi
 
 for i in ${DIFFLOG} ; do
   echo "XML Patch found, processing ${i} ..."
-  echo "patch ${i} compiled" >> "${WORKSPACE}"/tmp/"${RPD_FILE}"
+  echo "patch ${i} compiled" >> "${RPD_FILE}"
 done
 
 
 # for testing purposes
-echo "copying ${WORKSPACE}"/tmp/"${RPD_FILE}"
-cp "${WORKSPACE}"/tmp/"${RPD_FILE}" /tmp/jenkins_tmp_data/
+echo "copying ${RPD_FILE}"
+cp "${RPD_FILE}" /tmp/jenkins_tmp_data/
 RC=$?
 if [[ $RC -eq 0 ]] ; then
-  echo "RPD has been copied to /tmp/jenkins_tmp_data/"
+  echo "RPD has been moved successfully"
 else
-  echo "Oops, something bad happened! Cannot copy the file ${WORKSPACE}"/tmp/"${RPD_FILE}"
+  echo "Oops, something bad happened! Cannot copy the file ${RPD}"
 exit 1
 fi
 
-echo "moving ${WORKSPACE}"/tmp/"${RPD_FILE}"
-mv "${WORKSPACE}"/tmp/"${RPD_FILE}" "${DEST_DIR}"
+echo "moving ${RPD_FILE}"
+mv "${RPD_FILE}" "${DEST_DIR}"
 RC=$?
 if [[ $RC -eq 0 ]] ; then
-  echo "RPD has been moved to ${DEST_DIR}"
+  echo "RPD has been moved successfully"
 else
   echo "Oops, something bad happened! Cannot move the file ${RPD}"
 exit 1
-fi
-
-
-git_push "${RPD_PREFIX}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}"
-RC=$?
-if [[ $RC -eq 0 ]] ; then 
-  echo "pushed to repo successfully"
-else
-  echo "error during pushing to repo, exiting..."
-  exit 1
 fi
 
 echo "all checks are done, exiting..."
