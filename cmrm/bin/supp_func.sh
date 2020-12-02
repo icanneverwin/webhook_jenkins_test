@@ -20,7 +20,7 @@ git_push() {
 
   if [[ -n "${GIT_STATUS}" ]] ; then
     # checking if file is in the list
-    grep -e "${FILENAME}" ${GIT_STATUS}
+    grep -o "${FILENAME}" ${GIT_STATUS}
     RC=$?
     if [[ $RC -eq 0 || $RC -eq 2 ]] ; then
       echo "file not found in git status output, exiting..."
