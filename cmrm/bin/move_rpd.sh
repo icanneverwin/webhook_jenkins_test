@@ -3,7 +3,7 @@
 . "${WORKSPACE}"/cmrm/bin/supp_func.sh
 
 if [[ $# -ne 1 ]] ; then
-  echo "Usage: $(basename $0 PR_TITLE)"
+  echo "Usage: $(basename $0) PR_TITLE"
   exit 1
 fi
 
@@ -63,7 +63,7 @@ else
 exit 1
 fi
 
-
+echo "git_push \"${RPD_PREFIX}\"/\"${RPD_FILE}\" \"${GIT_BRANCH}\" \"${PR_TITLE}"
 git_push "${RPD_PREFIX}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}"
 RC=$?
 if [[ $RC -eq 0 ]] ; then 
