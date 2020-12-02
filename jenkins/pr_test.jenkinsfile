@@ -4,6 +4,7 @@ pipeline {
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
+    GIT_CREDS = credentials('github-token')
   }
   /* DEV DEPLOYMENT STAGE */
   stages {
@@ -69,7 +70,8 @@ pipeline {
           steps {
             echo "execute move_rpd.sh batch"
             sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh '${WORKSPACE}/cmrm/bin/move_rpd.sh'
+            sh '${WORKSPACE}/cmrm/bin/move_rpd.sh "${params.PR_TITLE}"'
+            //TODO: add git push function (bash or groovy); if bash - additional check on GIT_CREDS_USR/GIT_CREDS_PWD variables
           }
         }
         stage('webcatalog-deploy') {
@@ -201,7 +203,7 @@ pipeline {
           steps {
             echo "execute move_rpd.sh batch"
             sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh '${WORKSPACE}/cmrm/bin/move_rpd.sh'
+            sh '${WORKSPACE}/cmrm/bin/move_rpd.sh "${params.PR_TITLE}"'
           }
         }
         stage('webcatalog-deploy') {
@@ -334,7 +336,7 @@ pipeline {
           steps {
             echo "execute move_rpd.sh batch"
             sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh '${WORKSPACE}/cmrm/bin/move_rpd.sh'
+            sh '${WORKSPACE}/cmrm/bin/move_rpd.sh "${params.PR_TITLE}"'
 
           }
         }
