@@ -20,7 +20,7 @@ git_push() {
 
   if [[ -n "${GIT_STATUS}" ]] ; then
     # checking if file is in the list
-    grep -o "${FILENAME}" ${GIT_STATUS}
+    grep -o "${FILENAME}" "${GIT_STATUS}"
     RC=$?
     if [[ $RC -eq 0 || $RC -eq 2 ]] ; then
       echo "file not found in git status output, exiting..."
@@ -28,7 +28,7 @@ git_push() {
     else
       git add "${FILENAME}"
       git commit -m "${COMMIT_TITLE}"
-      git push origin HEAD:${BRANCH}
+      git push origin HEAD:"${BRANCH}"
     fi
   else 
     echo "no changes, exiting"
