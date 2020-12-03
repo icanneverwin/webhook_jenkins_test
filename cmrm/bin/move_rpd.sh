@@ -11,11 +11,18 @@ fi
 echo "Preparing for RPD file movement"
 echo "Jenkins Workspace is ${WORKSPACE}"
 echo "PR_TITLE is $1"
+echo "GIT_CREDS_USR is $2"
+echo "GIT_CREDS_PSW is $3"
+
+
+PR_TITLE="$1"
+GIT_CREDS_USR="$2"
+GIT_CREDS_PSW="$3"
+
 
 DIFFLOG_LOCATION="${WORKSPACE}/difflog.txt"
 PATCH_PREFIX="Application/Patches"
 RPD_PREFIX="Application/RPD"
-PR_TITLE="$1"
 DEST_DIR="${WORKSPACE}"/"${RPD_PREFIX}"
 RPD_FILE="liverpd_$(date +"%Y%m%d_%H%M")"
 GIT_BRANCH="rpd_prod"
@@ -63,8 +70,8 @@ else
 exit 1
 fi
 
-echo "git_push \"${RPD_PREFIX}\"/\"${RPD_FILE}\" \"${GIT_BRANCH}\" \"${PR_TITLE}"
-git_push "${RPD_PREFIX}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}"
+echo "git_push \"${RPD_PREFIX}\"/\"${RPD_FILE}\" \"${GIT_BRANCH}\" \"${PR_TITLE}\" \"${GIT_CREDS_USR}\" \"${GIT_CREDS_PSW}\""
+git_push "${RPD_PREFIX}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}" "${GIT_CREDS_USR}" "${GIT_CREDS_PSW}"
 RC=$?
 if [[ $RC -eq 0 ]] ; then 
   echo "pushed to repo successfully"
