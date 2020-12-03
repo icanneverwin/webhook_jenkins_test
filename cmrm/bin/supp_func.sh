@@ -17,8 +17,8 @@ git_push() {
   echo $(git status --porcelain) | grep -o "${FILENAME}"
   RC=$?
 
-  if [[ $RC -eq 0 || $RC -eq 2 ]] ; then
-    echo "file not found in git staging area, exiting..."
+  if [[ $RC -ne 0 ]] ; then
+    echo "file not found in git staging area or error occured while greping the file, exiting..."
     exit 1
   else
     echo "git add ${FILENAME}"
