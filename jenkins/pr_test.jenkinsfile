@@ -70,7 +70,7 @@ pipeline {
           steps {
             echo "execute move_rpd.sh batch"
             sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\""
+            sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\" ${GIT_CREDS_USR} ${GIT_CREDS_PSW}"
             //TODO: add git push function (bash or groovy); if bash - additional check on GIT_CREDS_USR/GIT_CREDS_PWD variables
           }
         }
