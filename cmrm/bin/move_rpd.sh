@@ -2,8 +2,8 @@
 
 . "${WORKSPACE}"/cmrm/bin/supp_func.sh
 
-if [[ $# -ne 1 ]] ; then
-  echo "Usage: $(basename $0) PR_TITLE"
+if [[ $# -ne 3 ]] ; then
+  echo "Usage: $(basename $0) PR_TITLE GIT_USR GIT_PWD"
   exit 1
 fi
 
