@@ -35,7 +35,7 @@ git_push() {
     git add "${FILENAME}"
     echo "git commit -m ${COMMIT_TITLE}"
     git commit -m "${COMMIT_TITLE}"
-    echo "git push origin HEAD:${BRANCH}"
-    git push "${GIT_URL}" HEAD:"${BRANCH}"
+    echo "git push -f origin HEAD:${BRANCH}"
+    git push -f "${GIT_URL}" HEAD:"${BRANCH}"
   fi 
 }
