@@ -1,0 +1,2 @@
+patch Application/Patches/xml_patch1.xml compiled
+patch Application/Patches/xml_patch2.xml compiled
