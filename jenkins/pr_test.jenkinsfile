@@ -1,411 +1,130 @@
 Map modules = [:]
 pipeline {
-  agent none
+  agent {
+    node {
+      label "${params.EXECUTOR}"
+    }
+  }
   environment {
     email_add1 = 'ivan.pilyushenko@weigandt-consulting.com'
     email_add2 = 'konstantin.orlov@weigandt-consulting.com'
     GIT_CREDS = credentials('github-token')
+    HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
+    IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
   }
-  /* DEV DEPLOYMENT STAGE */
   stages {
-    stage('DEV Deploy') {
-      agent {
-        node {
-          label "jenkins01"
-        }
-      }
-      when {
-        beforeAgent true
-        allOf {
-          anyOf{
-            expression { params.PR_ACTION ==~ "opened" }
-            expression { params.PR_ACTION ==~ "synchronize" }
-          }         
-          expression { params.BASE_BRANCH ==~ "develop" }
-        }
-      }
-      environment {
-        DEPLOY_ENV = 'DEV'
-        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
-        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
-      }
-      // nested deployment stages
-      stages {
-        stage('difflog-generate') {
-          steps {
-            script {
-              // send email about initiated deployment
-              modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-              modules.emailExtSend.emailExtSend("Start", 
-                                                "${params.PR_NUM}",
-                                                "${env.DEPLOY_ENV}", 
-                                                "${params.PR_TITLE}", 
-                                                "${params.HEAD_BRANCH}",
-                                                "${params.BASE_BRANCH}",
-                                                "${params.PR_USER}",
-                                                "${env.BUILD_NUMBER}",
-                                                "${env.HOSTNAME}",
-                                                "${env.IP_ADDR}",
-                                                ["${env.email_add1}", "${env.email_add2}"])
-              // diff extract
-              modules.showGitDiff = load "${WORKSPACE}/jenkins/showGitDiff.groovy"
-              modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
-              env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
-              env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
-              env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
-              env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
-            }
-            echo "RPD_BUILD value is ${env.RPD_BUILD}"
-            echo "WEB_BUILD value is ${env.WEB_BUILD}"
-            echo "DB_BUILD value is ${env.DB_BUILD}"
-            echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
-          }
-        }
-        stage('rpd-deploy') {
-          when {
-            expression {
-              return "${env.RPD_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "execute move_rpd.sh batch"
-            sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\" ${GIT_CREDS_USR} ${GIT_CREDS_PSW}"
-            //TODO: add git push function (bash or groovy); if bash - additional check on GIT_CREDS_USR/GIT_CREDS_PWD variables
-          }
-        }
-        stage('webcatalog-deploy') {
-          when {
-            expression {
-              return "${env.WEB_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "WEB deploy is initiated"
-          }
-        }
-        stage('db-deploy') {
-          when {
-            expression {
-              return "${env.DB_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "DB deploy is initiated"
-          }
-        }
-        stage('batch-deploy') {
-          when {
-            expression {
-              return "${env.SHELL_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "Batch deploy is initiated"
-          }
-        }
-      }
-      post {
-        success {
-          script {
-            modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-            modules.emailExtSend.emailExtSend("Success",
-                                              "${params.PR_NUM}",
-                                              "${env.DEPLOY_ENV}", 
-                                              "${params.PR_TITLE}", 
-                                              "${params.HEAD_BRANCH}",
-                                              "${params.BASE_BRANCH}",
-                                              "${params.PR_USER}",
-                                              "${env.BUILD_NUMBER}",
-                                              "${env.HOSTNAME}",
-                                              "${env.IP_ADDR}",
-                                              ["${env.email_add1}", "${env.email_add2}"]
-                                            )
-          }
-        }
-        failure {
-          script {
-            modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-            modules.emailExtSend.emailExtSend("Failed", 
-                                              "${params.PR_NUM}",
-                                              "${env.DEPLOY_ENV}", 
-                                              "${params.PR_TITLE}", 
-                                              "${params.HEAD_BRANCH}",
-                                              "${params.BASE_BRANCH}",
-                                              "${params.PR_USER}",
-                                              "${env.BUILD_NUMBER}",
-                                              "${env.HOSTNAME}",
-                                              "${env.IP_ADDR}",
-                                              ["${env.email_add1}", "${env.email_add2}"]
-                                            )
-          }
+    stage('init') {
+      steps {
+        script {
+          // send email with details about initiated deployment
+          modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
+          modules.emailExtSend.emailExtSend("Start", 
+                                            "${params.PR_NUM}",
+                                            "${env.DEPLOY_ENV}", 
+                                            "${params.PR_TITLE}", 
+                                            "${params.HEAD_BRANCH}",
+                                            "${params.BASE_BRANCH}",
+                                            "${params.PR_USER}",
+                                            "${env.BUILD_NUMBER}",
+                                            "${env.HOSTNAME}",
+                                            "${env.IP_ADDR}",
+                                            ["${env.email_add1}", "${env.email_add2}"])
         }
       }
     }
-    /* TEST DEPLOYMENT STAGE */
-    stage('TEST deploy') {
-      agent {
-        node {
-          label 'spbdocker'
+    stage('difflog-generate') {
+      steps {
+        script {
+          // diff extract
+          modules.showGitDiff = load "${WORKSPACE}/jenkins/showGitDiff.groovy"
+          modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
+          env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
+          env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
+          env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
+          env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
         }
-      }
-      when {
-        beforeAgent true
-        allOf {
-          expression { params.BASE_BRANCH ==~ "develop" }
-          expression { params.PR_ACTION ==~ "submitted" }
-          expression { params.REVIEW_STATE ==~ "approved" }
-        }
-      }
-      environment {
-        DEPLOY_ENV = 'TEST'
-        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
-        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)
-      }
-      // nested deployment stages
-      stages {
-        stage('difflog-generate') {
-          steps {
-            script {
-              // send email about initiated deployment
-              modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-              modules.emailExtSend.emailExtSend("Start", 
-                                                "${params.PR_NUM}",
-                                                "${env.DEPLOY_ENV}", 
-                                                "${params.PR_TITLE}", 
-                                                "${params.HEAD_BRANCH}",
-                                                "${params.BASE_BRANCH}",
-                                                "${params.PR_USER}",
-                                                "${env.BUILD_NUMBER}",
-                                                "${env.HOSTNAME}",
-                                                "${env.IP_ADDR}",
-                                                ["${env.email_add1}", "${env.email_add2}"])
-              // diff extract
-              modules.showGitDiff = load "${WORKSPACE}/jenkins/showGitDiff.groovy"
-              modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
-              env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
-              env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
-              env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
-              env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
-            }
-            echo "RPD_BUILD value is ${env.RPD_BUILD}"
-            echo "WEB_BUILD value is ${env.WEB_BUILD}"
-            echo "DB_BUILD value is ${env.DB_BUILD}"
-            echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
-          }      
-        }
-        stage('rpd-deploy') {
-          when {
-            expression {
-              return "${env.RPD_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "execute move_rpd.sh batch"
-            sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\""
-          }
-        }
-        stage('webcatalog-deploy') {
-          when {
-            expression {
-              return "${env.WEB_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "WEB deploy is initiated"
-          }
-        }
-        stage('db-deploy') {
-          when {
-            expression {
-              return "${env.DB_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "DB deploy is initiated"
-          }
-        }
-        stage('batch-deploy') {
-          when {
-            expression {
-              return "${env.SHELL_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "Batch deploy is initiated"
-          }
-        }
-      }
-      post {
-        success {
-          script {
-            modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-            modules.emailExtSend.emailExtSend("Success", 
-                                              "${params.PR_NUM}",
-                                              "${env.DEPLOY_ENV}", 
-                                              "${params.PR_TITLE}", 
-                                              "${params.HEAD_BRANCH}",
-                                              "${params.BASE_BRANCH}",
-                                              "${params.PR_USER}",
-                                              "${env.BUILD_NUMBER}",
-                                              "${env.HOSTNAME}",
-                                              "${env.IP_ADDR}",
-                                              ["${env.email_add1}", "${env.email_add2}"]
-                                            )
-          }
-        }
-        failure {
-          script {
-            modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-            modules.emailExtSend.emailExtSend("Failed", 
-                                              "${params.PR_NUM}",
-                                              "${env.DEPLOY_ENV}", 
-                                              "${params.PR_TITLE}", 
-                                              "${params.HEAD_BRANCH}",
-                                              "${params.BASE_BRANCH}",
-                                              "${params.PR_USER}",
-                                              "${env.BUILD_NUMBER}",
-                                              "${env.HOSTNAME}",
-                                              "${env.IP_ADDR}",
-                                              ["${env.email_add1}", "${env.email_add2}"]
-                                            )
-          }
-        }
+        echo "RPD_BUILD value is ${env.RPD_BUILD}"
+        echo "WEB_BUILD value is ${env.WEB_BUILD}"
+        echo "DB_BUILD value is ${env.DB_BUILD}"
+        echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
       }
     }
-    /* PROD DEPLOYMENT STAGE */
-    stage('PROD deploy') {
-      agent {
-        node {
-          label 'spbdocker'
-        }
-      }
+    stage('rpd-deploy') {
       when {
-        beforeAgent true
-        allOf {
-          expression { params.PR_ACTION ==~ "submitted" }
-          expression { params.BASE_BRANCH ==~ "main" }
-          expression { params.HEAD_BRANCH ==~ "develop" }
-          expression { params.REVIEW_STATE ==~ "approved" }
+        expression {
+          return "${env.RPD_BUILD}".toBoolean()
         }
       }
-      environment {
-        DEPLOY_ENV = 'PROD'
-        HOSTNAME = sh(script: "hostname", returnStdout: true).trim()
-        IP_ADDR = sh(script: "hostname -I | awk '{print \$1}'", returnStdout: true)        
+      steps {
+        echo "execute move_rpd.sh batch"
+        sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
+        sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\" ${GIT_CREDS_USR} ${GIT_CREDS_PSW}"
       }
-      // nested deployment stages
-      stages {
-        stage('difflog-generate') {
-          steps {
-            script {
-              // send email about initiated deployment
-              modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-              modules.emailExtSend.emailExtSend("Start", 
-                                                "${params.PR_NUM}",
-                                                "${env.DEPLOY_ENV}", 
-                                                "${params.PR_TITLE}", 
-                                                "${params.HEAD_BRANCH}",
-                                                "${params.BASE_BRANCH}",
-                                                "${params.PR_USER}",
-                                                "${env.BUILD_NUMBER}",
-                                                "${env.HOSTNAME}",
-                                                "${env.IP_ADDR}",
-                                                ["${env.email_add1}", "${env.email_add2}"])
-              // diff extract
-              modules.showGitDiff = load "${WORKSPACE}/jenkins/showGitDiff.groovy"
-              modules.showGitDiff.showGitDiff("${params.HEAD_SHA}", "${params.BASE_SHA}")
-              env.RPD_BUILD   = modules.showGitDiff.deployInit('RPD')
-              env.WEB_BUILD   = modules.showGitDiff.deployInit('WEB')
-              env.DB_BUILD    = modules.showGitDiff.deployInit('DB')
-              env.SHELL_BUILD = modules.showGitDiff.deployInit('SHELL')
-            }
-            echo "RPD_BUILD value is ${env.RPD_BUILD}"
-            echo "WEB_BUILD value is ${env.WEB_BUILD}"
-            echo "DB_BUILD value is ${env.DB_BUILD}"
-            echo "SHELL_BUILD value is ${env.SHELL_BUILD}"
-          }           
-        }
-        stage('rpd-deploy') {
-          when {
-            expression {
-              return "${env.RPD_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "execute move_rpd.sh batch"
-            sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-            sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\""
-
-          }
-        }
-        stage('webcatalog-deploy') {
-          when {
-            expression {
-              return "${env.WEB_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "WEB deploy is initiated"
-          }
-        }
-        stage('db-deploy') {
-          when {
-            expression {
-              return "${env.DB_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "DB deploy is initiated"
-          }
-        }
-        stage('batch-deploy') {
-          when {
-            expression {
-              return "${env.SHELL_BUILD}".toBoolean()
-            }
-          }
-          steps {
-            echo "SHELL deploy is initiated"
-          }
+    }
+    stage('webcatalog-deploy') {
+      when {
+        expression {
+          return "${env.WEB_BUILD}".toBoolean()
         }
       }
-      post {
-        success {
-          script {
-            modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-            modules.emailExtSend.emailExtSend("Success", 
-                                              "${params.PR_NUM}",
-                                              "${env.DEPLOY_ENV}", 
-                                              "${params.PR_TITLE}", 
-                                              "${params.HEAD_BRANCH}",
-                                              "${params.BASE_BRANCH}",
-                                              "${params.PR_USER}",
-                                              "${env.BUILD_NUMBER}",
-                                              "${env.HOSTNAME}",
-                                              "${env.IP_ADDR}",
-                                              ["${env.email_add1}", "${env.email_add2}"]
-                                            )
-          }
+      steps {
+        echo "WEB deploy is initiated"
+      }
+    }
+    stage('db-deploy') {
+      when {
+        expression {
+          return "${env.DB_BUILD}".toBoolean()
         }
-        failure {
-          script {
-            modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
-            modules.emailExtSend.emailExtSend("Failed", 
-                                              "${params.PR_NUM}",
-                                              "${env.DEPLOY_ENV}", 
-                                              "${params.PR_TITLE}", 
-                                              "${params.HEAD_BRANCH}",
-                                              "${params.BASE_BRANCH}",
-                                              "${params.PR_USER}",
-                                              "${env.BUILD_NUMBER}",
-                                              "${env.HOSTNAME}",
-                                              "${env.IP_ADDR}",
-                                              ["${env.email_add1}", "${env.email_add2}"]
-                                            )
-          }
+      }
+      steps {
+        echo "DB deploy is initiated"
+      }
+    }
+    stage('batch-deploy') {
+      when {
+        expression {
+          return "${env.SHELL_BUILD}".toBoolean()
         }
+      }
+      steps {
+        echo "Batch deploy is initiated"
+      }
+    }
+  }
+  post {
+    success {
+      script {
+        modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
+        modules.emailExtSend.emailExtSend("Success",
+                                          "${params.PR_NUM}",
+                                          "${env.DEPLOY_ENV}", 
+                                          "${params.PR_TITLE}", 
+                                          "${params.HEAD_BRANCH}",
+                                          "${params.BASE_BRANCH}",
+                                          "${params.PR_USER}",
+                                          "${env.BUILD_NUMBER}",
+                                          "${env.HOSTNAME}",
+                                          "${env.IP_ADDR}",
+                                          ["${env.email_add1}", "${env.email_add2}"]
+                                        )
+      }
+    }
+    failure {
+      script {
+        modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
+        modules.emailExtSend.emailExtSend("Failed", 
+                                          "${params.PR_NUM}",
+                                          "${env.DEPLOY_ENV}", 
+                                          "${params.PR_TITLE}", 
+                                          "${params.HEAD_BRANCH}",
+                                          "${params.BASE_BRANCH}",
+                                          "${params.PR_USER}",
+                                          "${env.BUILD_NUMBER}",
+                                          "${env.HOSTNAME}",
+                                          "${env.IP_ADDR}",
+                                          ["${env.email_add1}", "${env.email_add2}"]
+                                        )
       }
     }
   }
