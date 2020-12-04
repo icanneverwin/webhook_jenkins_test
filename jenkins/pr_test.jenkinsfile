@@ -20,7 +20,7 @@ pipeline {
           modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
           modules.emailExtSend.emailExtSend("Start", 
                                             "${params.PR_NUM}",
-                                            "${env.DEPLOY_ENV}", 
+                                            "${params.DEPLOY_ENV}", 
                                             "${params.PR_TITLE}", 
                                             "${params.HEAD_BRANCH}",
                                             "${params.BASE_BRANCH}",
@@ -58,7 +58,7 @@ pipeline {
       steps {
         echo "execute move_rpd.sh batch"
         sh 'chmod +x ${WORKSPACE}/cmrm/bin/move_rpd.sh'
-        sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\" ${GIT_CREDS_USR} ${GIT_CREDS_PSW}"
+        sh "${WORKSPACE}/cmrm/bin/move_rpd.sh \"${params.PR_TITLE}\" ${GIT_CREDS_USR} ${GIT_CREDS_PSW} ${params.DEPLOY_ENV}"
       }
     }
     stage('webcatalog-deploy') {
@@ -98,7 +98,7 @@ pipeline {
         modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
         modules.emailExtSend.emailExtSend("Success",
                                           "${params.PR_NUM}",
-                                          "${env.DEPLOY_ENV}", 
+                                          "${params.DEPLOY_ENV}", 
                                           "${params.PR_TITLE}", 
                                           "${params.HEAD_BRANCH}",
                                           "${params.BASE_BRANCH}",
@@ -115,7 +115,7 @@ pipeline {
         modules.emailExtSend = load "${WORKSPACE}/jenkins/emailExtSend.groovy"
         modules.emailExtSend.emailExtSend("Failed", 
                                           "${params.PR_NUM}",
-                                          "${env.DEPLOY_ENV}", 
+                                          "${params.DEPLOY_ENV}", 
                                           "${params.PR_TITLE}", 
                                           "${params.HEAD_BRANCH}",
                                           "${params.BASE_BRANCH}",
