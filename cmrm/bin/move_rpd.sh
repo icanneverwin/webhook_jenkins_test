@@ -2,8 +2,8 @@
 
 . "${WORKSPACE}"/cmrm/bin/supp_func.sh
 
-if [[ $# -ne 3 ]] ; then
-  echo "Usage: $(basename $0) PR_TITLE GIT_USR GIT_PWD"
+if [[ $# -ne 4 ]] ; then
+  echo "Usage: $(basename $0) PR_TITLE GIT_USR GIT_PWD DEPLOY_ENV"
   exit 1
 fi
 
@@ -13,11 +13,13 @@ echo "Jenkins Workspace is ${WORKSPACE}"
 echo "PR_TITLE is $1"
 echo "GIT_CREDS_USR is $2"
 echo "GIT_CREDS_PSW is $3"
+echo "DEPLOY_ENV is $4"
 
 
 PR_TITLE="$1"
 GIT_CREDS_USR="$2"
 GIT_CREDS_PSW="$3"
+DEPLOY_ENV="$4"
 
 
 DIFFLOG_LOCATION="${WORKSPACE}/difflog.txt"
@@ -70,14 +72,18 @@ else
 exit 1
 fi
 
-echo "git_push \"${RPD_PREFIX}\"/\"${RPD_FILE}\" \"${GIT_BRANCH}\" \"${PR_TITLE}\" \"${GIT_CREDS_USR}\" \"${GIT_CREDS_PSW}\""
-git_push "${RPD_PREFIX}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}" "${GIT_CREDS_USR}" "${GIT_CREDS_PSW}"
-RC=$?
-if [[ $RC -eq 0 ]] ; then 
-  echo "pushed to repo successfully"
-else
-  echo "error during pushing to repo, exiting..."
+if [[ ${DEPLOY_ENV} == "PRD" ]] ; then
+  # if PRD, then push RPD file to GIT
+  echo "Production deployment is happening, pushing back to git generated RPD file..."
+  echo "git_push \"${RPD_PREFIX}\"/\"${RPD_FILE}\" \"${GIT_BRANCH}\" \"${PR_TITLE}\" \"${GIT_CREDS_USR}\" \"${GIT_CREDS_PSW}\""
+  git_push "${RPD_PREFIX}"/"${RPD_FILE}" "${GIT_BRANCH}" "${PR_TITLE}" "${GIT_CREDS_USR}" "${GIT_CREDS_PSW}"
+  RC=$?
+  if [[ $RC -eq 0 ]] ; then 
+    echo "pushed to repo successfully"
+  else
+    echo "error during pushing to repo, exiting..."
   exit 1
+  fi
 fi
 
 echo "all checks are done, exiting..."
