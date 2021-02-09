@@ -1,0 +1,82 @@
+import jenkins.model.*
+
+collectBuildRPD = [:]
+collectBuildWEB = [:]
+
+@NonCPS
+def getNodes(String label) {
+  jenkins.model.Jenkins.instance.nodes.collect { thisAgent ->
+    if (thisAgent.labelString == "${label}") {
+      return thisAgent.name
+    }
+  }
+}
+
+
+def deploy_rpd(String agentName) {
+  node("${agentName}") {
+    stage("deploy_rpd: ${agentName}") {
+      echo "running on agent ${agentName}"
+      sh 'printenv'
+    }
+  }
+}
+
+def deploy_web(String agentName) {
+  node("${agentName}") {
+    stage("deploy_web: ${agentName}") {
+      echo "running on agent ${agentName}"
+      sh 'printenv'
+    }
+  }
+}
+
+def processTask() {
+  
+  def nodeList = getNodes("${params.EXECUTOR}")
+  for(i=0; i<nodeList.size(); i++) {
+    def agentName = nodeList[i]
+    if (agentName != null) {
+      println "preparing task for " + agentName
+      collectBuildRPD["node_" + agentName] = {
+        deploy_rpd(agentName)
+      collectBuildWEB["node_" + agentName] = {
+        deploy_web(agentName)
+      }
+      }
+    }
+  }
+}
+
+pipeline {
+  agent none
+  options {
+    timestamps()
+  }
+  
+  stages {
+    stage('init') {
+      steps {
+        script {
+          processTask()
+          echo "difflog extraction"
+          echo "difflog validation"
+        }
+      }
+    }
+    stage('rpd deploy') {
+      steps {
+        script {
+          parallel collectBuildRPD
+        }
+      }
+    }
+    stage('web deploy') {
+      steps {
+        script {
+          parallel collectBuildWEB
+        }
+      }
+    }
+  }
+}
